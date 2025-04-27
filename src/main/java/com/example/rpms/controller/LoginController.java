@@ -23,9 +23,23 @@ public class LoginController {
         String username = usernameField.getText();
         String password = passwordField.getText();
 
+        // Check for Admin login
         if ("admin".equals(username) && "admin".equals(password)) {
             showAlert("Login Successful", "Welcome Admin!");
-        } else {
+            // Redirect to Admin dashboard
+        }
+        // Check for Doctor login
+        else if ("doctor".equals(username) && "doctor123".equals(password)) {
+            showAlert("Login Successful", "Welcome Doctor!");
+            // Redirect to Doctor dashboard
+        }
+        // Check for Patient login
+        else if ("patient".equals(username) && "patient123".equals(password)) {
+            showAlert("Login Successful", "Welcome Patient!");
+            // Redirect to Patient dashboard
+        }
+        // If none of the conditions match
+        else {
             showAlert("Login Failed", "Incorrect username or password!");
         }
     }
