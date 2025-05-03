@@ -1,6 +1,7 @@
 package com.example.rpms.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Administrator extends User {
     // lists of patients and doctors in the system
@@ -39,7 +40,7 @@ public class Administrator extends User {
     }
 
     // registering new patient
-    public void registerPatient(Patient patient) {
+    public static void registerPatient(Patient patient) {
         patients.add(patient);
         System.out.println("Patient " + patient.getName() + " registered.");
     }
@@ -58,6 +59,28 @@ public class Administrator extends User {
             System.out.println("Patient " + patient.getName() + " removed from the system.");
         } else {
             System.out.println("Patient not found.");
+        }
+    }
+    public static List<Patient> viewPatients() {
+        System.out.println("Patients:");
+        for (Patient patient : patients) {
+            System.out.println(patient.getName());
+        }
+        return patients;
+    }
+    public static void viewDoctors() {
+        System.out.println("Doctors:");
+        for (Doctor doctor : doctors) {
+            System.out.println(doctor.getName());
+        }
+    }
+    public static void viewAppointments() {
+        System.out.println("Appointments:");
+        for (Doctor doctor : doctors) {
+            System.out.println(doctor.getName());
+            for (Appointment appointment : doctor.getAppointments()) {
+                System.out.println(appointment.getDate());
+            }
         }
     }
 }

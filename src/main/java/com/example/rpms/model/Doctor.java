@@ -17,6 +17,11 @@ public class Doctor extends User {
         super("defaultId", "defaultName", "defaultEmail"); // Provide default values
         this.patients = new ArrayList<>();
     }
+
+    public static boolean removeDoctorByIdNameEmail(String id, String name, String email) {
+        return true;
+    }
+
     // gettern for patients
     public ArrayList<Patient> getPatients() {
         return patients;
@@ -78,5 +83,16 @@ public class Doctor extends User {
     public void cancelAppointment(Appointment appointment) {
         AppointmentManager.cancelAppointment(appointment);
         System.out.println("Appointment cancelled for: " + appointment.getPatient().getName());
+    }
+
+    public Appointment[] getAppointments() {
+        List<Appointment> appointments = AppointmentManager.getAppointments();
+        List<Appointment> doctorAppointments = new ArrayList<>();
+        for (Appointment appointment : appointments) {
+            if (appointment.getDoctor().equals(this)) {
+                doctorAppointments.add(appointment);
+            }
+        }
+        return doctorAppointments.toArray(new Appointment[0]);
     }
 }

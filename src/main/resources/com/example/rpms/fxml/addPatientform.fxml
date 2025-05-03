@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.rpms.controller.AddPatientController"
+            prefWidth="900" prefHeight="700"
+            style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
+
+    <top>
+        <HBox alignment="CENTER" spacing="10" prefHeight="80"
+              style="-fx-background-color: #27ae60;">
+            <Label text="🧑‍⚕️ Add Patient to Hospital System"
+                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <VBox alignment="CENTER" spacing="15"
+                  style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                  maxWidth="500">
+
+                <Label text="Patient Registration Form"
+                       style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+
+                <TextField fx:id="nameField" promptText="Full Name" />
+                <TextField fx:id="emailField" promptText="Email Address" />
+                <TextField fx:id="phoneField" promptText="Phone Number" />
+
+                <ComboBox fx:id="genderComboBox" promptText="Select Gender">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Male"/>
+                            <String fx:value="Female"/>
+                            <String fx:value="Other"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <DatePicker fx:id="dobPicker" promptText="Date of Birth" />
+                <TextArea fx:id="addressArea" promptText="Address" prefRowCount="2" wrapText="true" />
+                <TextField fx:id="emergencyContactField" promptText="Emergency Contact Number" />
+                <TextArea fx:id="medicalHistoryArea" promptText="Medical History" prefRowCount="2" wrapText="true" />
+                <TextField fx:id="allergiesField" promptText="Known Allergies (if any)" />
+
+                <ComboBox fx:id="patientTypeComboBox" promptText="Select Patient Type">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="In-Patient"/>
+                            <String fx:value="Out-Patient"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <Button text="Add Patient" onAction="#handleAddPatient"
+                        style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+
+                <Label fx:id="statusLabel" style="-fx-font-size: 12px;" textFill="green" />
+
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

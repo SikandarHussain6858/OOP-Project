@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<?import java.lang.String?>
+<BorderPane xmlns="http://javafx.com/javafx/17.0.12"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.rpms.controller.LoginController"
+            prefWidth="600.0" prefHeight="500.0"
+            style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
+
+    <!-- Top Header -->
+    <top>
+        <HBox alignment="CENTER" spacing="10.0" prefHeight="80"
+              style="-fx-background-color: #2c3e50;">
+            <Label text="🏥 Welcome to HOSPITAL MANAGEMENT SYSTEM"
+                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+            <!-- Icon Row -->
+            <HBox alignment="CENTER" spacing="20">
+                <ImageView fitHeight="70" fitWidth="70">
+                    <image>
+                        <Image url="@images/hospital.png"/>
+                    </image>
+                </ImageView>
+            </HBox>
+
+            <!-- Login Form -->
+            <!-- Login Form -->
+            <VBox alignment="CENTER" spacing="15"
+                  style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+
+                <Label text="LOGIN PLEASE"
+                       style="-fx-font-size: 20px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+
+                <TextField fx:id="usernameField" promptText="Username" prefWidth="250"
+                           style="-fx-background-radius: 8;" />
+
+                <PasswordField fx:id="passwordField" promptText="Password" prefWidth="250"
+                               style="-fx-background-radius: 8;" />
+
+                <ComboBox fx:id="roleComboBox" prefWidth="250" style="-fx-background-radius: 8;">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Admin"/>
+                            <String fx:value="Doctor"/>
+                            <String fx:value="Patient"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <Button text="Login" onAction="#handleLogin" prefWidth="250"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+
+                <Label fx:id="errorLabel" textFill="red" style="-fx-font-size: 12px;" visible="false" />
+
+                <Label text="Forgot Password?" onMouseClicked="#handleForgotPassword"
+                       style="-fx-text-fill: #3498db; -fx-underline: true; -fx-cursor: hand;" />
+
+                <!-- Sign Up Button -->
+                <Button text="Sign Up" onAction="#handleSignUp" prefWidth="250"
+                        style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

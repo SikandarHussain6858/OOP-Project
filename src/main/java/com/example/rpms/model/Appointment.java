@@ -90,4 +90,19 @@ public class Appointment {
         }
         System.out.println("Patient not found in the hospital system.");
     }
+    public void viewAppointmentDetails() {
+        System.out.println("Appointment Details:");
+        System.out.println("Date: " + new Date(date));
+        System.out.println("Status: " + status);
+        System.out.println("Doctor: " + doctor.getName());
+        System.out.println("Patient: " + patient.getName());
+    }
+    public void viewAppointments() {
+        System.out.println("Appointments:");
+        for (Appointment a : AppointmentManager.getAppointments()) {
+            if (a.getDoctor().equals(this.doctor)) {
+                System.out.println(a.getDate() + " - " + a.getStatus());
+            }
+        }
+    }
 }

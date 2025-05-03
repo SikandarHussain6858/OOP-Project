@@ -2,7 +2,8 @@ module com.example.rpms {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.dlsc.formsfx;
-    requires java.mail; // keep if you are using formsfx, else remove
+    requires java.mail;
+    requires java.desktop; // keep if you are using formsfx, else remove
 
     opens com.example.rpms to javafx.fxml;
     opens com.example.rpms.controller to javafx.fxml;

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class Patient extends User {
     // attributes specific to the Patient class
+    private int age;  // age of the patient
     private VitalsDatabase vitalsDatabase;  // to store the vital signs of the patient
     private ArrayList<Feedback> feedbacks;  // to store previous feedbacks given by doctors
 
@@ -14,6 +15,10 @@ public class Patient extends User {
         this.vitalsDatabase = new VitalsDatabase();
         // new arraylist for feedbacks for each patient
         this.feedbacks = new ArrayList<>();
+    }
+
+    public static boolean removePatientByIdNameEmail(String id, String name, String email) {
+        return true;
     }
 
     // getter for vitalsdatabase of each patient

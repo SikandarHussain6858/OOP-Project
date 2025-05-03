@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.rpms.controller.BookAppointmentDashboardController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
+
+    <!-- Top Header -->
+    <top>
+        <HBox alignment="CENTER" spacing="10" prefHeight="80"
+              style="-fx-background-color: #2c3e50;">
+            <Label text="📅 Book Appointment"
+                   style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <!-- Center Content -->
+    <center>
+        <VBox alignment="CENTER" spacing="20">
+
+            <!-- Card-style form container -->
+            <VBox alignment="CENTER" spacing="12"
+                  style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
+                  maxWidth="300">
+
+                <Label text="Fill Appointment Details"
+                       style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
+
+                <TextField fx:id="patientNameField" promptText="Patient Name" prefWidth="200"
+                           style="-fx-background-radius: 8;" />
+
+                <TextField fx:id="doctorNameField" promptText="Doctor Name" prefWidth="200"
+                           style="-fx-background-radius: 8;" />
+
+                <DatePicker fx:id="appointmentDatePicker" promptText="Select Date" prefWidth="200"
+                            style="-fx-background-radius: 8;" />
+
+                <TextField fx:id="timeField" promptText="Time (e.g. 10:00 AM)" prefWidth="200"
+                           style="-fx-background-radius: 8;" />
+
+                <Button text="Book Appointment" onAction="#handleBookAppointment" prefWidth="200"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+
+                <Label fx:id="statusLabel" textFill="green" style="-fx-font-size: 12px;" />
+
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>
