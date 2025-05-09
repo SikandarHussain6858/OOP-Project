@@ -1,18 +1,40 @@
 package com.example.rpms.controller;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 
-public class DoctorDashboardController {
+import java.io.IOException;
 
+public class DoctorDashboardController{
     @FXML
     private VBox mainContent;
 
+    private void loadDoctorInfo() {
+        try {
+            // Load doctor information from database using userId
+            // Update UI elements accordingly
+        } catch (Exception e) {
+            showError("Error loading doctor information: " + e.getMessage());
+        }
+    }
+
     @FXML
     private void handleViewPatientData() {
-        showInfo("View Patient Data", "This would display patient vitals and health info.");
+        try {
+            FXMLLoader loader = new FXMLLoader(DoctorDashboardController.class.getResource("/com/example/rpms/fxml/viewPatientData.fxml"));
+            Parent root = loader.load();
+            Stage stage = new Stage();
+            stage.setTitle("Patient Data");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Error loading patient data view: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -37,7 +59,17 @@ public class DoctorDashboardController {
 
     @FXML
     private void handleViewProfile() {
-        showInfo("My Profile", "This would show the doctor's profile and editable details.");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/DoctorProfile.fxml"));
+            Parent root = loader.load();
+
+            Stage stage = new Stage();
+            stage.setTitle("Doctor Profile");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -51,6 +83,14 @@ public class DoctorDashboardController {
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
         alert.showAndWait();
     }
 }

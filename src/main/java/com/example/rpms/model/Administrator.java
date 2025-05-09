@@ -1,86 +1,122 @@
 package com.example.rpms.model;
 
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Administrator extends User {
-    // lists of patients and doctors in the system
-    // they are statics because we want to have a single list of doctors and patients for the whole system
-    // so that we can access them from anywhere in the system
-    private static ArrayList<Doctor> doctors = new ArrayList<>();
-    private static ArrayList<Patient> patients = new ArrayList<>();
-    // list of system logs
-    private static ArrayList<String> systemLogs;
+    private static final String INSERT_DOCTOR = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'DOCTOR')";
+    private static final String INSERT_PATIENT = "INSERT INTO users (username, password, email, role) VALUES (?, ?, ?, 'PATIENT')";
 
-    // constructor
     public Administrator(String id, String name, String email) {
         super(id, name, email);
     }
 
-    // getters
-    public static ArrayList<Doctor> getDoctors() { return doctors; }
-    public static ArrayList<Patient> getPatients() { return patients; }
-    public static ArrayList<String> getSystemLogs() { return systemLogs; }
-
-    // adding new log
-    public void addSystemLog(String log) {
-        systemLogs.add(log);
-    }
-    // viewing all logs
-    public void viewSystemLogs() {
-        System.out.println("System Logs:");
-        for (String log : systemLogs) {
-            System.out.println(log);
-        }
-    }
-    // registering new dovctor
     public void registerDoctor(Doctor doctor) {
-        doctors.add(doctor);
-        System.out.println("Doctor " + doctor.getName() + " registered.");
-    }
-
-    // registering new patient
-    public static void registerPatient(Patient patient) {
-        patients.add(patient);
-        System.out.println("Patient " + patient.getName() + " registered.");
-    }
-
-    //remoce a doctor from the system
-    public void removeDoctor(Doctor doctor) {
-        if (doctors.remove(doctor)) {
-            System.out.println("Doctor " + doctor.getName() + " removed from the system.");
-        } else {
-            System.out.println("Doctor not found.");
-        }
-    }
-    //remove a patient from the system
-    public void removePatient(Patient patient) {
-        if (patients.remove(patient)) {
-            System.out.println("Patient " + patient.getName() + " removed from the system.");
-        } else {
-            System.out.println("Patient not found.");
-        }
-    }
-    public static List<Patient> viewPatients() {
-        System.out.println("Patients:");
-        for (Patient patient : patients) {
-            System.out.println(patient.getName());
-        }
-        return patients;
-    }
-    public static void viewDoctors() {
-        System.out.println("Doctors:");
-        for (Doctor doctor : doctors) {
-            System.out.println(doctor.getName());
-        }
-    }
-    public static void viewAppointments() {
-        System.out.println("Appointments:");
-        for (Doctor doctor : doctors) {
-            System.out.println(doctor.getName());
-            for (Appointment appointment : doctor.getAppointments()) {
-                System.out.println(appointment.getDate());
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(INSERT_DOCTOR, Statement.RETURN_GENERATED_KEYS)) {
+            
+            stmt.setString(1, doctor.getName());
+            stmt.setString(2, "defaultPassword"); // Should be hashed in production
+            stmt.setString(3, doctor.getEmail());
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows > 0) {
+                // Get the generated user_id
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int userId = rs.getInt(1);
+                        insertDoctorDetails(userId, doctor);
+                        addSystemLog("Doctor registered: " + doctor.getName());
+                    }
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+    }
+
+    private void insertDoctorDetails(int userId, Doctor doctor) {
+        String sql = "INSERT INTO patient_details (doctor_id, specialization, phone_number) VALUES (?, ?, ?)";
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, userId);
+            stmt.setString(2, doctor.getSpecialization());
+            stmt.setString(3, doctor.getPhoneNumber());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Doctor> getDoctors() {
+        List<Doctor> doctors = new ArrayList<>();
+        String sql = "SELECT u.*, d.specialization, d.phone_number FROM users u " +
+                    "JOIN doctor_details d ON u.user_id = d.doctor_id " +
+                    "WHERE u.role = 'DOCTOR'";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                Doctor doctor = new Doctor(
+                    String.valueOf(rs.getInt("user_id")),
+                    rs.getString("username"),
+                    rs.getString("email")
+                );
+                doctor.setSpecialization(rs.getString("specialization"));
+                doctor.setPhoneNumber(rs.getString("phone_number"));
+                doctors.add(doctor);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return doctors;
+    }
+
+    public void removeDoctor(String doctorId) {
+        String sql = "DELETE FROM users WHERE user_id = ? AND role = 'DOCTOR'";
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, doctorId);
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows > 0) {
+                addSystemLog("Doctor removed: ID " + doctorId);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addSystemLog(String log) {
+        String sql = "INSERT INTO emergency_alerts (alert_type, alert_message) VALUES ('SYSTEM_LOG', ?)";
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, log);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<String> getSystemLogs() {
+        List<String> logs = new ArrayList<>();
+        String sql = "SELECT alert_message FROM emergency_alerts WHERE alert_type = 'SYSTEM_LOG' ORDER BY created_at DESC";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                logs.add(rs.getString("alert_message"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return logs;
     }
 }

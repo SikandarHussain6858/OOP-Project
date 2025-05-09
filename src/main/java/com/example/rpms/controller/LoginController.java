@@ -3,13 +3,18 @@ package com.example.rpms.controller;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import com.example.rpms.model.DatabaseConnector;
 
 public class LoginController {
 
@@ -19,61 +24,104 @@ public class LoginController {
     @FXML private Label errorLabel;
 
     @FXML
+    private void initialize() {
+        roleComboBox.getItems().addAll("Admin", "Doctor", "Patient");
+        errorLabel.setVisible(false);
+    }
+
+    @FXML
     private void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+        String username = usernameField.getText().trim();
+        String password = passwordField.getText().trim();
         String role = roleComboBox.getValue();
 
-        // Dummy login check (replace with actual logic)
-        if (role != null && role.equals("Admin") && username.equals("admin") && password.equals("admin123")) {
-            errorLabel.setVisible(false);
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/admin_dashboard.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (Exception e) {
-                e.printStackTrace();
+        if (username.isEmpty() || password.isEmpty() || role == null) {
+            errorLabel.setText("⚠️ All fields are required.");
+            errorLabel.setVisible(true);
+            return;
+        }
+
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String query = "SELECT user_id, role FROM users WHERE username = ? AND password = ? AND role = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setString(1, username);
+            stmt.setString(2, password);
+            stmt.setString(3, role.toUpperCase());
+
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String userId = rs.getString("user_id");
+                String userRole = rs.getString("role");
+                
+                switch (userRole) {
+                    case "PATIENT" -> loadPatientDashboard(userId);
+                    case "DOCTOR" -> loadDoctorDashboard(userId);
+                    case "ADMIN" -> loadAdminDashboard();
+                    default -> {
+                        errorLabel.setText("❌ Invalid role.");
+                        errorLabel.setVisible(true);
+                    }
+                }
+            } else {
+                errorLabel.setText("❌ Invalid credentials.");
+                errorLabel.setVisible(true);
             }
 
-        } else if (role != null && role.equals("Doctor") && username.equals("doctor") && password.equals("doc123")) {
-            errorLabel.setVisible(false);
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/doctor_dashboard.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else if (role != null && role.equals("Patient") && username.equals("patient") && password.equals("pat123")) {
-            errorLabel.setVisible(false);
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/patient_dashboard.fxml"));
-                Parent root = loader.load();
-                Stage stage = (Stage) usernameField.getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.show();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        } else {
-            // This else was incorrectly written before
-            errorLabel.setText("Invalid credentials. Please try again.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            errorLabel.setText("❌ Database error.");
             errorLabel.setVisible(true);
         }
+    }
+
+    private void loadPatientDashboard(String patientId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/patient_dashboard.fxml"));
+            Parent root = loader.load();
+
+
+
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Patient Dashboard");
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            errorLabel.setText("❌ Could not load patient dashboard.");
+            errorLabel.setVisible(true);
+        }
+    }
+
+    private void loadDoctorDashboard(String doctorId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/doctor_dashboard.fxml"));
+            Parent root = loader.load();
+
+
+
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Doctor Dashboard");
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+            errorLabel.setText("❌ Could not load doctor dashboard.");
+            errorLabel.setVisible(true);
+        }
+    }
+
+    private void loadAdminDashboard() {
+        // Similar implementation for admin dashboard
     }
 
     @FXML
     public void handleForgotPassword(javafx.scene.input.MouseEvent mouseEvent) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Forgot Password");
-        alert.setHeaderText("Password Recovery Instructions");
-        alert.setContentText("Please contact the hospital administration to reset your password.\n\nEmail: support@hospital.com\nPhone: +123-456-7890");
+        alert.setHeaderText("Password Recovery");
+        alert.setContentText("Please contact support:\nEmail: support@hospital.com\nPhone: +123-456-7890");
         alert.showAndWait();
     }
 
@@ -82,16 +130,11 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/sign_up.fxml"));
             Parent signupRoot = loader.load();
-
             Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
             stage.setScene(new Scene(signupRoot));
             stage.setTitle("Sign Up");
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
-
-
-
 }

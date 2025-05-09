@@ -1,214 +1,179 @@
 package com.example.rpms.controller;
 
-import com.example.rpms.model.Administrator;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import com.example.rpms.model.*;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Modality;
 
 import java.io.IOException;
-import java.util.List;
-
-import com.example.rpms.model.Appointment;
-import com.example.rpms.model.Doctor;
-import com.example.rpms.model.Patient;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class AdminDashboardController {
-
     @FXML
     private VBox mainContent;
+    
+    private Administrator administrator;
+    private Map<String, Stage> openWindows;
 
     @FXML
-    private void handleAddPatient(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/addPatientform.fxml"));
-            Parent root = loader.load();
+    public void initialize() {
+        // Initialize administrator with default admin credentials
+        administrator = new Administrator("1", "Admin", "admin@rpms.com");
+        openWindows = new HashMap<>();
+        
+        validateDatabaseConnection();
+    }
 
-            Stage stage = new Stage();
-            stage.setTitle("Add Patient");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
+    private void validateDatabaseConnection() {
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            System.out.println("Database connected successfully!");
+        } catch (SQLException e) {
+            showError("Database Connection Error", 
+                     "Failed to connect to database: " + e.getMessage());
         }
+    }
+
+    @FXML
+    private void handleAddPatient() {
+        loadForm("addPatientform", "Add Patient");
     }
 
     @FXML
     private void handleRemovePatient(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/removePatient.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Remove Patient");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        loadForm("removePatient", "Remove Patient");
     }
 
     @FXML
-    private void handleAddDoctor(ActionEvent event) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/addDoctorform.fxml"));
-            Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Add Doctor");
-            stage.setScene(new Scene(root));
-            stage.show();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private void handleAddDoctor() {
+        loadForm("addDoctorform", "Add Doctor");
     }
 
     @FXML
     private void handleRemoveDoctor(ActionEvent event) {
+        loadForm("removeDoctor", "Remove Doctor");
+    }
+
+    @FXML
+    private void handleBookAppointment() {
+        loadForm("bookAppointment", "Book Appointment");
+    }
+
+    @FXML
+    private void handleViewPatients() {
+        loadForm("ViewPatients", "View Patients");
+    }
+
+    @FXML
+    private void handleViewDoctors() {
+        loadForm("ViewDoctors", "View Doctors");
+    }
+
+    @FXML
+    private void handleSendEmail() {
+        loadForm("email", "Send Email");
+    }
+
+    @FXML
+    private void handleEmergencyAlerts() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/removeDoctor.fxml"));
+            if (openWindows.containsKey("emergencyAlerts")) {
+                openWindows.get("emergencyAlerts").requestFocus();
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/example/rpms/fxml/emergencyAlerts.fxml"));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Remove Doctor");
-            stage.setScene(new Scene(root));
-            stage.show();
+            EmergencyAlertController controller = loader.getController();
+            controller.loadActiveAlerts();
 
+            Stage stage = createStage("Emergency Alerts", root);
+            openWindows.put("emergencyAlerts", stage);
+            
+            stage.setOnCloseRequest(e -> openWindows.remove("emergencyAlerts"));
+            stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Error", "Could not load emergency alerts: " + e.getMessage());
         }
     }
 
     @FXML
-    private void handleBookAppointment(ActionEvent event) {
+    private void handleViewAppointments() {
+        loadForm("ViewAppointments", "View Appointments");
+    }
+
+    @FXML
+    private void handleSystemReports() {
+        loadForm("systemReports", "System Reports");
+    }
+
+    private void loadForm(String fxmlName, String title) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/bookAppointment.fxml"));
+            if (openWindows.containsKey(fxmlName)) {
+                openWindows.get(fxmlName).requestFocus();
+                return;
+            }
+
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/example/rpms/fxml/" + fxmlName + ".fxml"));
             Parent root = loader.load();
 
-            Stage stage = new Stage();
-            stage.setTitle("Book Appointment");
-            stage.setScene(new Scene(root));
+            Stage stage = createStage(title, root);
+            openWindows.put(fxmlName, stage);
+            
+            stage.setOnCloseRequest(e -> openWindows.remove(fxmlName));
             stage.show();
-
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Error", "Could not load " + title + ": " + e.getMessage());
         }
     }
 
-    @FXML
-    private void handleViewPatients(ActionEvent event) {
-        mainContent.getChildren().clear();
+    private Stage createStage(String title, Parent root) {
+        Stage stage = new Stage();
+        stage.initModality(Modality.WINDOW_MODAL);
+        stage.initOwner(mainContent.getScene().getWindow());
+        stage.setTitle(title);
+        stage.setScene(new Scene(root));
+        return stage;
+    }
 
-        Label title = new Label("Patients List");
-        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        TableView<Patient> table = new TableView<>();
-
-        TableColumn<Patient, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-
-        TableColumn<Patient, String> nameCol = new TableColumn<>("Name");
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Patient, String> ageCol = new TableColumn<>("Age");
-        ageCol.setCellValueFactory(new PropertyValueFactory<>("age"));
-
-        table.getColumns().addAll(idCol, nameCol, ageCol);
-
-        List<Patient> patientList = Administrator.viewPatients();
-        if (patientList != null) {
-            ObservableList<Patient> data = FXCollections.observableArrayList(patientList);
-            table.setItems(data);
-        }
-
-        mainContent.getChildren().addAll(title, table);
+    private void showError(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     @FXML
-    private void handleViewDoctors(ActionEvent event) {
-        mainContent.getChildren().clear();
-
-        Label title = new Label("Doctors List");
-        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        TableView<Doctor> table = new TableView<>();
-
-        TableColumn<Doctor, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-
-        TableColumn<Doctor, String> nameCol = new TableColumn<>("Name");
-        nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-        TableColumn<Doctor, String> specialtyCol = new TableColumn<>("Specialty");
-        specialtyCol.setCellValueFactory(new PropertyValueFactory<>("specialty"));
-
-        table.getColumns().addAll(idCol, nameCol, specialtyCol);
-
-        ObservableList<Doctor> data = FXCollections.observableArrayList(
-                new Doctor("D001", "Dr. Alice", "Cardiology"),
-                new Doctor("D002", "Dr. Bob", "Neurology")
-        );
-
-        table.setItems(data);
-
-        mainContent.getChildren().addAll(title, table);
-    }
-
-    @FXML
-    private void handleViewAppointments(ActionEvent event) {
-        mainContent.getChildren().clear();
-
-        Label title = new Label("Appointments List");
-        title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        TableView<Appointment> table = new TableView<>();
-
-        TableColumn<Appointment, String> idCol = new TableColumn<>("ID");
-        idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
-
-        TableColumn<Appointment, String> patientCol = new TableColumn<>("Patient");
-        patientCol.setCellValueFactory(new PropertyValueFactory<>("patientName"));
-
-        TableColumn<Appointment, String> doctorCol = new TableColumn<>("Doctor");
-        doctorCol.setCellValueFactory(new PropertyValueFactory<>("doctorName"));
-
-        TableColumn<Appointment, String> dateCol = new TableColumn<>("Date");
-        dateCol.setCellValueFactory(new PropertyValueFactory<>("date"));
-
-        table.getColumns().addAll(idCol, patientCol, doctorCol, dateCol);
-
-        // You should fetch actual appointments from your model here
-        // ObservableList<Appointment> data = FXCollections.observableArrayList(...);
-        // table.setItems(data);
-
-        mainContent.getChildren().addAll(title, table);
-    }
-
-    @FXML
-    private void handleSendEmail(ActionEvent event) {
+    private void handleLogout(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/email.fxml"));
+            // Close all open windows
+            openWindows.values().forEach(Stage::close);
+            openWindows.clear();
+
+            // Load the login screen
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/com/example/rpms/fxml/login.fxml"));
             Parent root = loader.load();
-
-            Stage stage = new Stage();
-            stage.setTitle("Send Email");
-            stage.setScene(new Scene(root));
-            stage.show();
-
+            
+            Stage currentStage = (Stage) mainContent.getScene().getWindow();
+            currentStage.setScene(new Scene(root));
+            currentStage.setTitle("Login - RPMS");
+            
+            administrator.addSystemLog("Admin logged out");
         } catch (IOException e) {
-            e.printStackTrace();
+            showError("Logout Error", "Could not return to login screen: " + e.getMessage());
         }
     }
 }

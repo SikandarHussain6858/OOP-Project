@@ -2,51 +2,34 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.geometry.*?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.rpms.controller.DoctorDashboardController"
-            prefWidth="900" prefHeight="600"
-            style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
-
-    <!-- Header -->
-    <HBox layoutX="0" layoutY="0" prefHeight="70" prefWidth="900"
-          alignment="CENTER_LEFT"
-          style="-fx-background-color: #2c3e50; -fx-padding: 0 0 0 30;">
-        <Label text="🩺 Doctor Dashboard"
-               style="-fx-text-fill: white; -fx-font-size: 22px; -fx-font-weight: bold;" />
-        <Pane HBox.hgrow="ALWAYS"/>
-        <Button text="Logout" onAction="#handleLogout" prefHeight="30" prefWidth="80"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-weight: bold; -fx-margin-right: 20;" />
-    </HBox>
-
-    <!-- Sidebar -->
-    <VBox layoutX="20" layoutY="90" spacing="15" prefWidth="220"
-          alignment="TOP_CENTER"
-          style="-fx-background-color: #ecf0f1; -fx-padding: 20; -fx-background-radius: 12;">
-        <Button text="📊 View Patient Data" prefWidth="180" onAction="#handleViewPatientData"
-                style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="📝 Give Feedback" prefWidth="180" onAction="#handleGiveFeedback"
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="📅 Schedule Appointments" prefWidth="180" onAction="#handleScheduleAppointments"
-                style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="📂 Patient History" prefWidth="180" onAction="#handleViewHistory"
-                style="-fx-background-color: #8e44ad; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="🚨 Emergency Alerts" prefWidth="180" onAction="#handleEmergencyAlerts"
-                style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="👤 My Profile" prefWidth="180" onAction="#handleViewProfile"
-                style="-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-    </VBox>
-
-    <!-- Main Content Area -->
-    <VBox fx:id="mainContent"
-          layoutX="260" layoutY="90"
-          prefWidth="620" prefHeight="480"
-          spacing="20" alignment="CENTER"
-          style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
-        <Label text="Welcome, Doctor 👨‍⚕️" style="-fx-font-size: 20px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
-        <Label text="Please choose an action from the left menu."
-               style="-fx-font-size: 14px; -fx-text-fill: #555555;" />
-    </VBox>
-
-</AnchorPane>
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" 
+            xmlns="http://javafx.com/javafx/17"
+            fx:controller="com.example.rpms.controller.DoctorDashboardController">
+    
+    <top>
+        <HBox alignment="CENTER_RIGHT" spacing="10" style="-fx-background-color: #2c3e50; -fx-padding: 10;">
+            <Label fx:id="doctorNameLabel" style="-fx-text-fill: white;"/>
+            <Button text="Logout" onAction="#handleLogout"/>
+        </HBox>
+    </top>
+    
+    <left>
+        <VBox spacing="10" style="-fx-background-color: #34495e; -fx-padding: 10;">
+            <Button text="View Patient Data" onAction="#handleViewPatientData"/>
+            <Button text="Give Feedback" onAction="#handleGiveFeedback"/>
+            <Button text="Schedule Appointments" onAction="#handleScheduleAppointments"/>
+            <Button text="View History" onAction="#handleViewHistory"/>
+            <Button text="Emergency Alerts" onAction="#handleEmergencyAlerts"/>
+            <Button text="My Profile" onAction="#handleViewProfile"/>
+        </VBox>
+    </left>
+    
+    <center>
+        <VBox fx:id="mainContent" style="-fx-padding: 20;">
+            <Label text="Welcome, Doctor" style="-fx-font-size: 24;"/>
+        </VBox>
+    </center>
+    
+</BorderPane>

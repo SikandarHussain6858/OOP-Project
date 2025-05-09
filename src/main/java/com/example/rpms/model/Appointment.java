@@ -1,108 +1,109 @@
 package com.example.rpms.model;
 
-import java.util.Date;
+import java.sql.*;
+import java.time.LocalDateTime;
 
 public class Appointment {
-    // data fields
-    private long date;
+    private int appointmentId;
+    private int patientId;
+    private int doctorId;
+    private LocalDateTime appointmentDate;
     private String status;
-    private Doctor doctor;
-    private Patient patient;
+    private String notes;
 
-    // constructor
-    public Appointment(String date, String doctorName, String patientName) {
-        this.date = Date.parse(date);
-        // using setters to ensure validation
-        setDoctor(findDoctorByName(doctorName));
-        setPatient(findPatientByName(patientName));
-        setStatus("Pending");
+    public Appointment(int patientId, int doctorId, LocalDateTime appointmentDate, String notes) {
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.appointmentDate = appointmentDate;
+        this.status = "PENDING";
+        this.notes = notes;
     }
 
-    private Doctor findDoctorByName(String name) {
-        for (Doctor d : Administrator.getDoctors()) {
-            if (d.getName().equals(name)) {
-                return d;
+    public boolean saveToDatabase() {
+        String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, status, notes) VALUES (?, ?, ?, ?, ?)";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            
+            stmt.setInt(1, patientId);
+            stmt.setInt(2, doctorId);
+            stmt.setTimestamp(3, Timestamp.valueOf(appointmentDate));
+            stmt.setString(4, status);
+            stmt.setString(5, notes);
+            
+            int affectedRows = stmt.executeUpdate();
+            if (affectedRows > 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    this.appointmentId = rs.getInt(1);
+                    return true;
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        System.out.println("Doctor not found in the hospital system.");
+        return false;
+    }
+
+    public boolean updateStatus(String newStatus) {
+        if (!isValidStatus(newStatus)) {
+            return false;
+        }
+
+        String sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, newStatus);
+            stmt.setInt(2, appointmentId);
+            
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private boolean isValidStatus(String status) {
+        return status != null && (
+            status.equals("PENDING") || 
+            status.equals("APPROVED") || 
+            status.equals("CANCELLED")
+        );
+    }
+
+    public static Appointment loadFromDatabase(int appointmentId) {
+        String sql = "SELECT * FROM appointments WHERE appointment_id = ?";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, appointmentId);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                Appointment appointment = new Appointment(
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getTimestamp("appointment_date").toLocalDateTime(),
+                    rs.getString("notes")
+                );
+                appointment.appointmentId = appointmentId;
+                appointment.status = rs.getString("status");
+                return appointment;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return null;
     }
 
-    private Patient findPatientByName(String name) {
-        for (Patient p : Administrator.getPatients()) {
-            if (p.getName().equals(name)) {
-                return p;
-            }
-        }
-        System.out.println("Patient not found in the hospital system.");
-        return null;
-    }
-
-    // getters
-    public long getDate() {
-        return date;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public Doctor getDoctor() {
-        return doctor;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    // setters
-    public void setDate(long date) {
-        this.date = date;
-    }
-
-    public void setStatus(String status) {
-        // validation for states of status
-        if (status.equals("Pending") || status.equals("Approved") || status.equals("Cancelled")) {
-            this.status = status;
-        } else {
-            System.out.println("Invalid status. Status must be either 'Pending', 'Approved', or 'Cancelled'.");
-        }
-    }
-
-    public void setDoctor(Doctor doctor) {
-        // checking if the doctor exists in the hospital
-        for (Doctor d : Administrator.getDoctors()) {
-            if (d.equals(doctor)) {
-                this.doctor = doctor;
-                return;
-            }
-        }
-        System.out.println("Doctor not found in the hospital system.");
-    }
-
-    public void setPatient(Patient patient) {
-        // checking if the patient exists in the hospital
-        for (Patient p : Administrator.getPatients()) {
-            if (p.equals(patient)) {
-                this.patient = patient;
-                return;
-            }
-        }
-        System.out.println("Patient not found in the hospital system.");
-    }
-    public void viewAppointmentDetails() {
-        System.out.println("Appointment Details:");
-        System.out.println("Date: " + new Date(date));
-        System.out.println("Status: " + status);
-        System.out.println("Doctor: " + doctor.getName());
-        System.out.println("Patient: " + patient.getName());
-    }
-    public void viewAppointments() {
-        System.out.println("Appointments:");
-        for (Appointment a : AppointmentManager.getAppointments()) {
-            if (a.getDoctor().equals(this.doctor)) {
-                System.out.println(a.getDate() + " - " + a.getStatus());
-            }
-        }
-    }
+    // Getters and Setters
+    public int getAppointmentId() { return appointmentId; }
+    public int getPatientId() { return patientId; }
+    public int getDoctorId() { return doctorId; }
+    public LocalDateTime getAppointmentDate() { return appointmentDate; }
+    public String getStatus() { return status; }
+    public String getNotes() { return notes; }
 }

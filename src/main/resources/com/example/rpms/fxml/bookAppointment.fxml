@@ -6,7 +6,7 @@
 <?import javafx.scene.layout.*?>
 
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.rpms.controller.BookAppointmentDashboardController"
+            fx:controller="com.example.rpms.controller.BookAppointmentController"
             prefWidth="800" prefHeight="600"
             style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
 
@@ -26,27 +26,35 @@
             <!-- Card-style form container -->
             <VBox alignment="CENTER" spacing="12"
                   style="-fx-background-color: white; -fx-padding: 25; -fx-background-radius: 12; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);"
-                  maxWidth="300">
+                  maxWidth="400">
 
                 <Label text="Fill Appointment Details"
                        style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
 
-                <TextField fx:id="patientNameField" promptText="Patient Name" prefWidth="200"
+                <ComboBox fx:id="patientComboBox" promptText="Select Patient" prefWidth="300"
+                         style="-fx-background-radius: 8;" />
+
+                <ComboBox fx:id="doctorComboBox" promptText="Select Doctor" prefWidth="300"
+                         style="-fx-background-radius: 8;" />
+
+                <DatePicker fx:id="appointmentDatePicker" promptText="Select Date" prefWidth="300"
                            style="-fx-background-radius: 8;" />
 
-                <TextField fx:id="doctorNameField" promptText="Doctor Name" prefWidth="200"
-                           style="-fx-background-radius: 8;" />
+                <TextField fx:id="timeField" promptText="Time (HH:mm e.g. 14:30)" prefWidth="300"
+                          style="-fx-background-radius: 8;" />
 
-                <DatePicker fx:id="appointmentDatePicker" promptText="Select Date" prefWidth="200"
-                            style="-fx-background-radius: 8;" />
+                <TextArea fx:id="notesArea" promptText="Notes (Optional)" prefWidth="300" prefRowCount="3"
+                         style="-fx-background-radius: 8;" />
 
-                <TextField fx:id="timeField" promptText="Time (e.g. 10:00 AM)" prefWidth="200"
-                           style="-fx-background-radius: 8;" />
+                <Button text="Book Appointment" onAction="#handleBookAppointment" prefWidth="300"
+                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;">
+                    <VBox.margin>
+                        <Insets top="10" />
+                    </VBox.margin>
+                </Button>
 
-                <Button text="Book Appointment" onAction="#handleBookAppointment" prefWidth="200"
-                        style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-
-                <Label fx:id="statusLabel" textFill="green" style="-fx-font-size: 12px;" />
+                <Label fx:id="statusLabel" wrapText="true" alignment="CENTER" prefWidth="300"
+                       style="-fx-font-size: 14px;" />
 
             </VBox>
         </VBox>

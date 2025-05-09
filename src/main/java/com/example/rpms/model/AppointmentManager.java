@@ -1,62 +1,136 @@
 package com.example.rpms.model;
 
+import java.sql.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 public class AppointmentManager {
-    // static arraylist to hold all appointments
-    private static ArrayList<Appointment> appointments = new ArrayList<>();
-
-    // getter for appointments
-    public static ArrayList<Appointment> getAppointments() {
+    
+    public static List<Appointment> getAppointments() {
+        List<Appointment> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointments ORDER BY appointment_date";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                appointments.add(new Appointment(
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getTimestamp("appointment_date").toLocalDateTime(),
+                    rs.getString("notes")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return appointments;
     }
-    // viewing all appointments
-    public static void viewAppointments(){
-        System.out.println("Appointments:");
-        for (Appointment a : appointments) {
-            System.out.println(a.getDate() + " - " + a.getStatus() + " - " + a.getDoctor().getName() + " - " + a.getPatient().getName());
-        }
+
+    public static List<Appointment> getPendingAppointments() {
+        return getAppointmentsByStatus("PENDING");
     }
-    // viewing pending appointments
-    public static void viewPendingAppointments() {
-        System.out.println("Pending Appointments:");
-        for (Appointment a : appointments) {
-            if (a.getStatus().equals("Pending")) {
-                System.out.println(a.getDate() + " - " + a.getDoctor().getName() + " - " + a.getPatient().getName());
+
+    public static List<Appointment> getApprovedAppointments() {
+        return getAppointmentsByStatus("APPROVED");
+    }
+
+    public static List<Appointment> getCancelledAppointments() {
+        return getAppointmentsByStatus("CANCELLED");
+    }
+
+    private static List<Appointment> getAppointmentsByStatus(String status) {
+        List<Appointment> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointments WHERE status = ? ORDER BY appointment_date";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, status);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                appointments.add(new Appointment(
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getTimestamp("appointment_date").toLocalDateTime(),
+                    rs.getString("notes")
+                ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return appointments;
     }
 
-    // viewing approved appointments
-    public static void viewApprovedAppointments() {
-        System.out.println("Approved Appointments:");
-        for (Appointment a : appointments) {
-            if (a.getStatus().equals("Approved")) {
-                System.out.println(a.getDate() + " - " + a.getDoctor().getName() + " - " + a.getPatient().getName());
+    public static boolean requestAppointment(Appointment appointment) {
+        return appointment.saveToDatabase();
+    }
+
+    public static boolean approveAppointment(int appointmentId) {
+        Appointment appointment = Appointment.loadFromDatabase(appointmentId);
+        if (appointment != null) {
+            return appointment.updateStatus("APPROVED");
+        }
+        return false;
+    }
+
+    public static boolean cancelAppointment(int appointmentId) {
+        Appointment appointment = Appointment.loadFromDatabase(appointmentId);
+        if (appointment != null) {
+            return appointment.updateStatus("CANCELLED");
+        }
+        return false;
+    }
+
+    public static List<Appointment> getDoctorAppointments(int doctorId) {
+        List<Appointment> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointments WHERE doctor_id = ? ORDER BY appointment_date";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, doctorId);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                appointments.add(new Appointment(
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getTimestamp("appointment_date").toLocalDateTime(),
+                    rs.getString("notes")
+                ));
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
+        return appointments;
     }
 
-    // viewing cancelled appointments
-
-
-    // requesting a new appointment
-    public static void requestAppointment(Appointment appointment) {
-        appointments.add(appointment);
-        System.out.println("Appointment added to queue. Waiting to be approved.");
+    public static List<Appointment> getPatientAppointments(int patientId) {
+        List<Appointment> appointments = new ArrayList<>();
+        String sql = "SELECT * FROM appointments WHERE patient_id = ? ORDER BY appointment_date";
+        
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+            
+            while (rs.next()) {
+                appointments.add(new Appointment(
+                    rs.getInt("patient_id"),
+                    rs.getInt("doctor_id"),
+                    rs.getTimestamp("appointment_date").toLocalDateTime(),
+                    rs.getString("notes")
+                ));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return appointments;
     }
-
-    // approving an appointment
-    public static void approveAppointment(Appointment appointment) {
-        appointment.setStatus("Approved");
-        System.out.println("Appointment approved: " + appointment.getDate());
-    }
-
-    // cancelling an appointment
-    public static void cancelAppointment(Appointment appointment) {
-        appointment.setStatus("Cancelled");
-        System.out.println("Appointment cancelled: " + appointment.getDate());
-    }
-
 }
 

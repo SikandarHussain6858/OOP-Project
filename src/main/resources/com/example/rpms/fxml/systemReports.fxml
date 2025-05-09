@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.rpms.controller.SystemReportsController"
+            prefWidth="800" prefHeight="600"
+            style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
+
+    <top>
+        <HBox alignment="CENTER" spacing="10" prefHeight="60"
+              style="-fx-background-color: #2c3e50;">
+            <Label text="📊 System Reports"
+                   style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;" />
+        </HBox>
+    </top>
+
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <VBox spacing="15" maxWidth="700"
+                  style="-fx-background-color: white; -fx-padding: 20; 
+                         -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);">
+                
+                <HBox spacing="10">
+                    <DatePicker fx:id="startDate" promptText="Start Date"/>
+                    <DatePicker fx:id="endDate" promptText="End Date"/>
+                    <Button text="Apply Filter" onAction="#handleFilterDates"
+                            style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+                </HBox>
+
+                <TabPane>
+                    <Tab text="Patient Statistics" closable="false">
+                        <VBox spacing="10">
+                            <ListView fx:id="patientStatsList" prefHeight="200"/>
+                            <Button text="Export Patient Report" onAction="#handleExportPatientReport"
+                                    style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+                        </VBox>
+                    </Tab>
+                    
+                    <Tab text="Doctor Statistics" closable="false">
+                        <VBox spacing="10">
+                            <ListView fx:id="doctorStatsList" prefHeight="200"/>
+                            <Button text="Export Doctor Report" onAction="#handleExportDoctorReport"
+                                    style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+                        </VBox>
+                    </Tab>
+                    
+                    <Tab text="Appointment Analytics" closable="false">
+                        <VBox spacing="10">
+                            <ListView fx:id="appointmentStatsList" prefHeight="200"/>
+                            <Button text="Export Appointment Report" onAction="#handleExportAppointmentReport"
+                                    style="-fx-background-color: #e67e22; -fx-text-fill: white;"/>
+                        </VBox>
+                    </Tab>
+                </TabPane>
+            </VBox>
+        </VBox>
+    </center>
+</BorderPane>

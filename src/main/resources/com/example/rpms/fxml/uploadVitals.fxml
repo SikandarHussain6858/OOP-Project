@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+    <?import javafx.scene.control.*?>
+    <?import javafx.scene.layout.*?>
+    
+    <AnchorPane xmlns:fx="http://javafx.com/fxml"
+                fx:controller="com.example.rpms.controller.UploadVitalsController"
+                prefWidth="500" prefHeight="400">
+        <VBox spacing="15.0" alignment="TOP_CENTER" AnchorPane.topAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0">
+            <Label text="Upload Vitals" style="-fx-font-size: 20px; -fx-font-weight: bold;" />
+    
+            <VBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Heart Rate (bpm):" />
+                <ComboBox fx:id="heartRateComboBox" prefWidth="300" promptText="Select heart rate range"/>
+            </VBox>
+    
+            <VBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Oxygen Level (%):" />
+                <ComboBox fx:id="oxygenLevelComboBox" prefWidth="300" promptText="Select oxygen level"/>
+            </VBox>
+    
+            <VBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Blood Pressure (mmHg):" style="-fx-font-size: 14px;" />
+    
+                <HBox spacing="10">
+                    <ComboBox fx:id="systolicComboBox" promptText="Systolic" prefWidth="120"
+                              style="-fx-background-radius: 8;" />
+                    <ComboBox fx:id="diastolicComboBox" promptText="Diastolic" prefWidth="120"
+                              style="-fx-background-radius: 8;" />
+                </HBox>
+    
+            </VBox>
+    
+            <VBox spacing="5" alignment="CENTER_LEFT">
+                <Label text="Temperature (°C):" />
+                <ComboBox fx:id="temperatureComboBox" prefWidth="300" promptText="Select temperature range"/>
+            </VBox>
+    
+            <Button text="Upload Vitals" onAction="#handleUploadVitals" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" prefWidth="200"/>
+    
+            <Label fx:id="messageLabel" text="" visible="false" style="-fx-font-size: 14px;" />
+        </VBox>
+    </AnchorPane>
+    

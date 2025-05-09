@@ -4,16 +4,14 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
-<?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 <?import java.lang.String?>
 
 <BorderPane xmlns="http://javafx.com/javafx/17.0.12"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="com.example.rpms.controller.SignUpController"
-            prefWidth="600.0" prefHeight="550.0"
+            prefWidth="600.0" prefHeight="750.0"
             style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
 
     <!-- Header -->
@@ -54,7 +52,8 @@
                 <TextField fx:id="emailField" promptText="Email" prefWidth="250"
                            style="-fx-background-radius: 8;" />
 
-                <ComboBox fx:id="roleComboBox" prefWidth="250" style="-fx-background-radius: 8;">
+                <ComboBox fx:id="roleComboBox" prefWidth="250" promptText="Select Role"
+                          style="-fx-background-radius: 8;">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="Admin"/>
@@ -63,6 +62,62 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
+
+                <!-- Doctor Fields -->
+                <VBox fx:id="doctorFields" visible="false" managed="false" spacing="10">
+                    <TextField fx:id="specializationField" promptText="Specialization"/>
+                    <TextField fx:id="doctorPhoneField" promptText="Phone Number"/>
+                    <ComboBox fx:id="doctorGenderComboBox" promptText="Gender">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Male"/>
+                                <String fx:value="Female"/>
+                                <String fx:value="Other"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                    <DatePicker fx:id="doctorDobPicker" promptText="Date of Birth"/>
+                    <TextArea fx:id="doctorAddressArea" promptText="Address"/>
+                    <TextField fx:id="qualificationField" promptText="Qualification"/>
+                    <TextField fx:id="experienceField" promptText="Years of Experience"/>
+                    <TextField fx:id="timeSlotField" promptText="Available Time Slot"/>
+                    <TextField fx:id="availableDaysField" promptText="Available Days (comma separated)"/>
+                </VBox>
+
+                <!-- Patient Fields -->
+                <VBox fx:id="patientFields" visible="false" managed="false" spacing="10">
+                    <TextField fx:id="nameField" promptText="Full Name"/>
+                    <TextField fx:id="phoneField" promptText="Phone Number"/>
+                    <ComboBox fx:id="genderComboBox" promptText="Gender">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Male"/>
+                                <String fx:value="Female"/>
+                                <String fx:value="Other"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                    <DatePicker fx:id="dobPicker" promptText="Date of Birth"/>
+                    <TextArea fx:id="addressArea" promptText="Address"/>
+                    <TextField fx:id="emergencyContactField" promptText="Emergency Contact"/>
+                    <TextArea fx:id="medicalHistoryArea" promptText="Medical History"/>
+                    <TextField fx:id="allergiesField" promptText="Known Allergies"/>
+                    <ComboBox fx:id="patientTypeComboBox" promptText="Patient Type">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="In-Patient"/>
+                                <String fx:value="Out-Patient"/>
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+
+                <!-- Admin Fields -->
+                <VBox fx:id="adminFields" visible="false" managed="false" spacing="10">
+                    <TextField fx:id="adminPhoneField" promptText="Phone Number"/>
+                    <TextField fx:id="adminDepartmentField" promptText="Department"/>
+                    <TextField fx:id="adminRoleDescriptionField" promptText="Role Description"/>
+                </VBox>
 
                 <Button text="Sign Up" onAction="#handleSignUp" prefWidth="250"
                         style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />

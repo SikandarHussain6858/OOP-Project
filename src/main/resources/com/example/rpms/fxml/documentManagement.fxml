@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox spacing="20" alignment="TOP_CENTER" styleClass="content-pane"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.rpms.controller.DocumentManagementController">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Label text="📄 Document Management" style="-fx-font-size: 24; -fx-font-weight: bold;"/>
+    </HBox>
+
+    <TabPane VBox.vgrow="ALWAYS">
+        <Tab text="Upload Documents" closable="false">
+            <VBox spacing="15">
+                <ComboBox fx:id="documentTypeCombo" promptText="Select Document Type"/>
+                <DatePicker fx:id="documentDate" promptText="Document Date"/>
+                <TextArea fx:id="documentDescription" promptText="Description" prefRowCount="3"/>
+                <Button text="Choose File" onAction="#handleChooseFile"/>
+                <Label fx:id="selectedFileLabel"/>
+                <Button text="Upload Document" onAction="#handleUpload"
+                        style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+            </VBox>
+        </Tab>
+        
+        <Tab text="View Documents" closable="false">
+            <TableView fx:id="documentsTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+                    <TableColumn fx:id="typeColumn" text="Type" prefWidth="150"/>
+                    <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="200"/>
+                </columns>
+            </TableView>
+        </Tab>
+    </TabPane>
+</VBox>

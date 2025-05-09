@@ -24,22 +24,22 @@
           style="-fx-background-color: #ecf0f1; -fx-padding: 20;">
         <Button text="➕ Add Patient" prefWidth="160" onAction="#handleAddPatient"
                 style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="➖ Remove Patient" prefWidth="160" onAction="#handleRemovePatient"
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="👥 View Patients" prefWidth="160" onAction="#handleViewPatients"
                 style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="👨‍⚕️ Add Doctor" prefWidth="160" onAction="#handleAddDoctor"
                 style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="❌ Remove Doctor" prefWidth="160" onAction="#handleRemoveDoctor"
-                style="-fx-background-color: #f39c12; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="📋 View Doctors" prefWidth="160" onAction="#handleViewDoctors"
                 style="-fx-background-color: #1abc9c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="📅 Book Appointment" prefWidth="160" onAction="#handleBookAppointment"
                 style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="🗂 View Appointments" prefWidth="160" onAction="#handleViewAppointments"
                 style="-fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        <Button text="📧 Send Email " prefWidth="160" onAction="#handleSendEmail"
+        <Button text="📧 Send Email" prefWidth="160" onAction="#handleSendEmail"
                 style="-fx-background-color: #2980b9; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+        <Button text="🚨 Emergency Alerts" prefWidth="160" onAction="#handleEmergencyAlerts"
+                style="-fx-background-color: #c0392b; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+        <Button text="📊 System Reports" prefWidth="160" onAction="#handleSystemReports"
+                style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
     </VBox>
 
     <!-- Main Content Area -->

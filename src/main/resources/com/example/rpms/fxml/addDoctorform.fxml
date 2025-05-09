@@ -8,7 +8,7 @@
 <?import javafx.collections.FXCollections?>
 <?import java.lang.String?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
-            fx:controller="com.example.rpms.controller.AddDoctorDashboardController"
+            fx:controller="com.example.rpms.controller.AddDoctorController"
             prefWidth="900" prefHeight="700"
             style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff); -fx-font-family: 'Segoe UI';">
 
@@ -29,11 +29,12 @@
                 <Label text="Doctor Registration Form"
                        style="-fx-font-size: 18px; -fx-text-fill: #2c3e50; -fx-font-weight: bold;" />
 
-                <TextField fx:id="nameField" promptText="Full Name" />
-                <TextField fx:id="specializationField" promptText="Specialization" />
-                <TextField fx:id="emailField" promptText="Email Address" />
-                <TextField fx:id="phoneNumberField" promptText="Phone Number" />
-                <ComboBox fx:id="genderComboBox" promptText="Select Gender">
+                <TextField fx:id="nameField" promptText="Full Name *" />
+                <TextField fx:id="emailField" promptText="Email *" />
+                <PasswordField fx:id="passwordField" promptText="Password *" />
+                <TextField fx:id="specializationField" promptText="Specialization *" />
+                <TextField fx:id="phoneNumberField" promptText="Phone Number *" />
+                <ComboBox fx:id="genderComboBox" promptText="Select Gender *">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="Male"/>
@@ -42,13 +43,11 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
-                <DatePicker fx:id="dobPicker" promptText="Date of Birth" />
+                <DatePicker fx:id="dobPicker" promptText="Date of Birth *" />
                 <TextArea fx:id="addressArea" promptText="Address" prefRowCount="3" wrapText="true" />
-                <TextField fx:id="qualificationField" promptText="Qualification" />
-                <TextField fx:id="experienceField" promptText="Years of Experience" />
-
-
-                <TextField fx:id="timeSlotField" promptText="Available Time (e.g. 9AM - 5PM)" />
+                <TextField fx:id="qualificationField" promptText="Qualification *" />
+                <TextField fx:id="experienceField" promptText="Years of Experience *" />
+                <TextField fx:id="timeSlotField" promptText="Available Time Slot *" />
 
                 <HBox spacing="10">
                     <CheckBox fx:id="monCheck" text="Mon" />
@@ -57,7 +56,6 @@
                     <CheckBox fx:id="thuCheck" text="Thu" />
                     <CheckBox fx:id="friCheck" text="Fri" />
                 </HBox>
-
 
                 <Button text="Add Doctor" onAction="#handleAddDoctor"
                         style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />

@@ -1,43 +1,23 @@
 package com.example.rpms.model;
 
-import java.util.ArrayList;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 
 public class Feedback {
-    // datafields
-    private String comments;
-    private ArrayList<Prescription> prescriptions; // ArrayList to hold prescriptions
-    private Date date;// date of the feedback
+    private final int feedbackId;
+    private final int patientId;
+    private final String comments;
+    private final LocalDateTime createdAt;
 
-    public Feedback(String comments, ArrayList<Prescription> prescriptions, Date date) {
-        this.date = date;
+    public Feedback(int feedbackId, int patientId, String comments, LocalDateTime createdAt) {
+        this.feedbackId = feedbackId;
+        this.patientId = patientId;
         this.comments = comments;
-        // initializing the arraylist of prescriptions
-        this.prescriptions = prescriptions;
+        this.createdAt = createdAt;
     }
 
-    // getters and setters
+    public int getFeedbackId() { return feedbackId; }
+    public int getPatientId() { return patientId; }
     public String getComments() { return comments; }
-    public Date getDate() { return date; }
-    public ArrayList<Prescription> getPrescriptions() {
-        return prescriptions;
-    }
-
-    // setters
-    public void setComments(String comments) { this.comments = comments; }
-    public void setDate(Date date) { this.date = date; }
-
-    // adding new prescriptions
-    public void addPrescriptions(Prescription prescription) {
-        this.prescriptions.add(prescription);
-    }
-
-    // overriden tostring to display details
-    @Override
-    public String toString() {
-        return "Comments: " + comments +
-                "\nPrescriptions: " + prescriptions;
-    }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }
 
