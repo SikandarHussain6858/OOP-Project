@@ -16,6 +16,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.example.rpms.model.DatabaseConnector;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class EmailController {
     @FXML private TextField toField;
     @FXML private TextField ccField;
@@ -27,6 +33,8 @@ public class EmailController {
     @FXML private ListView<String> attachmentList;
     @FXML private CheckBox htmlCheckBox;
     @FXML private ProgressIndicator progressIndicator;
+    
+    private String userId;
 
     private List<File> attachments = new ArrayList<>();
     private final ExecutorService emailExecutor = Executors.newSingleThreadExecutor();
@@ -165,5 +173,53 @@ public class EmailController {
 
     public void cleanup() {
         emailExecutor.shutdown();
+    }
+
+    public void setUserId(String id) {
+        this.userId = id;
+    }
+
+    public void prepopulateEmergencyResponse(String alertType, String alertMessage) {
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String sql = "SELECT u.email, u.username FROM users u WHERE u.user_id = ?";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, userId);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                String recipientEmail = rs.getString("email");
+                String recipientName = rs.getString("username");
+                toField.setText(recipientEmail);
+                subjectField.setText("RE: " + alertType + " - Emergency Alert Response");
+                
+                // Create a professional response template
+                String template = """
+                    Dear %s,
+                    
+                    This is in response to your emergency alert regarding: %s
+                    
+                    Alert Details:
+                    %s
+                    
+                    I have received and reviewed your emergency alert. I am reaching out to provide immediate assistance.
+                    
+                    Please follow any provided instructions carefully. If your condition worsens or you need immediate medical attention, please call emergency services immediately.
+                    
+                    Best regards,
+                    [Your Doctor]
+                    """.formatted(recipientName, alertType, alertMessage);
+                
+                bodyField.setText(template);
+            }
+        } catch (SQLException e) {
+            showStatus("Error loading recipient details: " + e.getMessage(), true);
+        }
+    }
+
+    public void prepareVideoCallEmail(String recipientEmail, String subject, String messageTemplate) {
+        toField.setText(recipientEmail);
+        subjectField.setText(subject);
+        bodyField.setText(messageTemplate);
+        htmlCheckBox.setSelected(false); // Plain text for better compatibility
     }
 }

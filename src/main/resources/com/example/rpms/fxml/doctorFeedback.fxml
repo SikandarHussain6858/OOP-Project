@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" 
+      fx:controller="com.example.rpms.controller.DoctorFeedbackController"
+      spacing="20" alignment="CENTER"
+      style="-fx-background-color: white; -fx-padding: 30;">
+      
+    <Label text="Doctor Feedback"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+           
+    <!-- Feedback List -->
+    <TableView fx:id="feedbackTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="120"/>
+            <TableColumn fx:id="doctorColumn" text="Doctor" prefWidth="150"/>
+            <TableColumn fx:id="feedbackColumn" text="Feedback" prefWidth="300"/>
+        </columns>
+    </TableView>
+    
+    <!-- Add New Feedback -->
+    <VBox spacing="10" style="-fx-padding: 10;">
+        <Label text="Add New Feedback" style="-fx-font-weight: bold;"/>
+        <ComboBox fx:id="doctorComboBox" promptText="Select Doctor" maxWidth="Infinity"/>
+        <TextArea fx:id="feedbackArea" promptText="Enter your feedback here..." 
+                  prefRowCount="3" wrapText="true"/>
+        <Button text="Submit Feedback" onAction="#handleSubmitFeedback"
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+    </VBox>
+    
+</VBox>

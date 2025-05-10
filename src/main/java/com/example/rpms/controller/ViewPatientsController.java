@@ -7,8 +7,11 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import java.sql.*;
 import com.example.rpms.model.DatabaseConnector;
-import javafx.scene.layout.HBox;
-import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.Button;
 
 public class ViewPatientsController {
 
@@ -23,6 +26,7 @@ public class ViewPatientsController {
     @FXML private Label statusLabel;
 
     private ObservableList<Object[]> patientList = FXCollections.observableArrayList();
+    private String doctorId;
 
     @FXML
     public void initialize() {
@@ -135,6 +139,44 @@ public class ViewPatientsController {
             } catch (SQLException e) {
                 showError("Database error: " + e.getMessage());
             }
+        }
+    }
+
+    public void setDoctorId(String doctorId) {
+        this.doctorId = doctorId;
+        loadPatientsForDoctor();
+    }
+
+    private void loadPatientsForDoctor() {
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String sql = """
+                SELECT DISTINCT p.patient_id, u.username, u.email, pd.contact, pd.dob, pd.gender
+                FROM patient_details pd
+                JOIN users u ON pd.patient_id = u.user_id
+                JOIN appointments a ON a.patient_id = pd.patient_id
+                WHERE a.doctor_id = ?
+            """;
+            
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, doctorId);
+            ResultSet rs = stmt.executeQuery();
+
+            patientList.clear();
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("patient_id"),
+                    rs.getString("username"),
+                    rs.getString("email"),
+                    rs.getString("contact"),
+                    rs.getDate("dob") != null ? rs.getDate("dob").toString() : "",
+                    rs.getString("gender")
+                };
+                patientList.add(row);
+            }
+            patientTable.setItems(patientList);
+            
+        } catch (SQLException e) {
+            showError("Error loading patients: " + e.getMessage());
         }
     }
 

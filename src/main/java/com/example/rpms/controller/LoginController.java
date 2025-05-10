@@ -80,7 +80,8 @@ public class LoginController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/patient_dashboard.fxml"));
             Parent root = loader.load();
 
-
+            PatientDashboardController controller = loader.getController();
+            controller.setPatientId(patientId);
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
             stage.setScene(new Scene(root));
@@ -98,7 +99,9 @@ public class LoginController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/doctor_dashboard.fxml"));
             Parent root = loader.load();
-
+            
+            DoctorDashboardController controller = loader.getController();
+            controller.setDoctorId(doctorId);
 
 
             Stage stage = (Stage) usernameField.getScene().getWindow();
@@ -106,14 +109,33 @@ public class LoginController {
             stage.setTitle("Doctor Dashboard");
             stage.show();
         } catch (IOException e) {
-            e.printStackTrace();
-            errorLabel.setText("❌ Could not load doctor dashboard.");
-            errorLabel.setVisible(true);
+            showError("Could not load doctor dashboard: " + e.getMessage());
         }
     }
 
+    private void showError(String message) {
+        errorLabel.setText("❌ " + message);
+        errorLabel.setVisible(true);
+    }
+
     private void loadAdminDashboard() {
-        // Similar implementation for admin dashboard
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/admin_dashboard.fxml"));
+            Parent root = loader.load();
+
+            AdminDashboardController controller = loader.getController();
+            
+            Stage stage = (Stage) usernameField.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setTitle("Admin Dashboard");
+            stage.setResizable(true);
+            stage.centerOnScreen();
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace(); // This will help with debugging
+            showError("Could not load admin dashboard: " + e.getMessage());
+        }
     }
 
     @FXML

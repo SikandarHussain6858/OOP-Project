@@ -3,113 +3,181 @@ package com.example.rpms.controller;
 import com.example.rpms.model.DatabaseConnector;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Stage;
-
-import java.io.IOException;
 import java.sql.*;
-import java.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class EmergencyAlertController {
+    @FXML private ComboBox<String> alertTypeComboBox;
+    @FXML private TextArea messageArea;
+    @FXML private TableView<EmergencyAlert> alertsTable;
+    @FXML private TableColumn<EmergencyAlert, LocalDateTime> dateColumn;
+    @FXML private TableColumn<EmergencyAlert, String> typeColumn;
+    @FXML private TableColumn<EmergencyAlert, String> messageColumn;
+    @FXML private TableColumn<EmergencyAlert, String> statusColumn;
+
+    private String patientId;
+    private final ObservableList<EmergencyAlert> alerts = FXCollections.observableArrayList();
 
     @FXML
-    private ListView<String> alertsListView;
+    public void initialize() {
+        // Initialize alert types
+        alertTypeComboBox.getItems().addAll(
+            "Medical Emergency",
+            "Medication Issue",
+            "Urgent Consultation",
+            "Other Emergency"
+        );
 
-    @FXML
-    private Button panicButton;
+        // Initialize table columns
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
+        typeColumn.setCellValueFactory(new PropertyValueFactory<>("alertType"));
+        messageColumn.setCellValueFactory(new PropertyValueFactory<>("message"));
+        statusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
 
-    @FXML
-    private void handlePanicButtonAction() {
-        String sql = "INSERT INTO emergency_alerts (patient_id, alert_type, alert_message) VALUES (?, 'PANIC', 'Emergency assistance needed')";
+        alertsTable.setItems(alerts);
+    }
 
-        try (Connection conn = DatabaseConnector.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+        loadAlerts();
+    }
 
-            // Assuming you have the current user's ID stored somewhere
-            String currentPatientId = getCurrentPatientId();
-            pstmt.setString(1, currentPatientId);
-            pstmt.executeUpdate();
+    private void loadAlerts() {
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String sql = "SELECT * FROM emergency_alerts WHERE patient_id = ? ORDER BY created_at DESC";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, patientId);
+            ResultSet rs = stmt.executeQuery();
 
-            // Show alert
-            Alert alert = new Alert(AlertType.WARNING);
-            alert.setTitle("Emergency Alert");
-            alert.setHeaderText("Emergency Triggered!");
-            alert.setContentText("An emergency alert has been sent to your assigned doctor.");
-            alert.showAndWait();
-
-            // Send email notification
-            notifyDoctor(currentPatientId);
+            alerts.clear();
+            while (rs.next()) {
+                alerts.add(new EmergencyAlert(
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getString("alert_type"),
+                    rs.getString("alert_message"),
+                    rs.getString("status")
+                ));
+            }
         } catch (SQLException e) {
-            e.printStackTrace();
-            showError("Failed to send emergency alert");
+            showError("Error loading alerts: " + e.getMessage());
+        }
+    }    @FXML
+    private void handleSubmitAlert() {
+        String alertType = alertTypeComboBox.getValue();
+        String message = messageArea.getText().trim();
+
+        if (alertType == null || alertType.isEmpty()) {
+            showError("Please select an alert type");
+            return;
+        }
+
+        if (message.isEmpty()) {
+            showError("Please enter an alert message");
+            return;
+        }
+
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            conn.setAutoCommit(false);
+            try {
+                // Create the alert
+                String sql = "INSERT INTO emergency_alerts (patient_id, alert_type, alert_message, status, created_at) VALUES (?, ?, ?, 'ACTIVE', CURRENT_TIMESTAMP)";
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                stmt.setString(1, patientId);
+                stmt.setString(2, alertType);
+                stmt.setString(3, message);
+                stmt.executeUpdate();
+
+                // Send notifications to associated doctors
+                String notificationSql = "INSERT INTO notifications (user_id, message, created_at) " +
+                      "SELECT pd.doctor_id, CONCAT('New emergency alert from ', p.username, ': ', ?) as message, CURRENT_TIMESTAMP " +
+                      "FROM patient_doctor pd " +
+                      "JOIN users p ON pd.patient_id = p.user_id " +
+                      "WHERE pd.patient_id = ?";
+                PreparedStatement notifyStmt = conn.prepareStatement(notificationSql);
+                notifyStmt.setString(1, alertType + " - " + message);
+                notifyStmt.setString(2, patientId);
+                notifyStmt.executeUpdate();
+
+                conn.commit();
+
+                // Clear form
+                alertTypeComboBox.setValue(null);
+                messageArea.clear();
+                
+                // Reload alerts to show the new one
+                loadAlerts();
+                
+                showInfo("Emergency alert submitted successfully");
+            } catch (SQLException e) {
+                if (conn != null) {
+                    try {
+                        conn.rollback();
+                    } catch (SQLException ex) {
+                        showError("Error rolling back transaction: " + ex.getMessage());
+                    }
+                }
+                showError("Error submitting alert: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            showError("Error submitting alert: " + e.getMessage());
         }
     }
 
-    private void notifyDoctor(String patientId) {
-        // Implement email notification using your EmailNotification class
-    }
-
-    private String getCurrentPatientId() {
-        // Implement method to get current patient ID
-        return "1"; // Temporary return
-    }
-
     private void showError(String message) {
-        Alert alert = new Alert(AlertType.ERROR);
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
+        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    public void handleSendAlert(ActionEvent actionEvent) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/email.fxml"));
-            Parent root = loader.load();
+    private void showInfo(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
-            Stage stage = new Stage();
-            stage.setTitle("Send Email");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public static class EmergencyAlert {
+        private final LocalDateTime createdAt;
+        private final String alertType;
+        private final String message;
+        private final String status;
+
+        public EmergencyAlert(LocalDateTime createdAt, String alertType, String message, String status) {
+            this.createdAt = createdAt;
+            this.alertType = alertType;
+            this.message = message;
+            this.status = status;
         }
+
+        public LocalDateTime getCreatedAt() { return createdAt; }
+        public String getAlertType() { return alertType; }
+        public String getMessage() { return message; }
+        public String getStatus() { return status; }
     }
 
     public void loadActiveAlerts() {
-        String sql = "SELECT ea.*, u.username FROM emergency_alerts ea " +
-                "JOIN users u ON ea.patient_id = u.user_id " +
-                "WHERE ea.status = 'ACTIVE' " +
-                "ORDER BY ea.created_at DESC";
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String sql = "SELECT * FROM emergency_alerts WHERE status = 'ACTIVE' ORDER BY created_at DESC";
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            ResultSet rs = stmt.executeQuery();
 
-        ObservableList<String> alerts = FXCollections.observableArrayList();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        try (Connection conn = DatabaseConnector.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
+            alerts.clear();
             while (rs.next()) {
-                String alertInfo = String.format("Patient: %s\nType: %s\nMessage: %s\nTime: %s",
-                        rs.getString("username"),
-                        rs.getString("alert_type"),
-                        rs.getString("alert_message"),
-                        rs.getTimestamp("created_at").toLocalDateTime().format(formatter)
-                );
-                alerts.add(alertInfo);
+                alerts.add(new EmergencyAlert(
+                    rs.getTimestamp("created_at").toLocalDateTime(),
+                    rs.getString("alert_type"),
+                    rs.getString("alert_message"),
+                    rs.getString("status")
+                ));
             }
-
-            if (alertsListView != null) {
-                alertsListView.setItems(alerts);
-            }
-
         } catch (SQLException e) {
-            showError("Failed to load alerts: " + e.getMessage());
+            showError("Error loading active alerts: " + e.getMessage());
         }
     }
 }

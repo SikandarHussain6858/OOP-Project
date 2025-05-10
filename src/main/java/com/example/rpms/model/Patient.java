@@ -26,6 +26,14 @@ public class Patient extends User {
         loadFeedbacks();
     }
 
+    // Constructor with just ID
+    public Patient(String id) {
+        super(id, "", "");
+        loadFromDatabase();
+        loadVitals();
+        loadFeedbacks();
+    }
+
     // Calculate age from DOB
     public int getAge() {
         if (dob == null) return 0;

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.rpms.controller.WritePrescriptionController">
+    <VBox spacing="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+        <Label text="Write Prescription" styleClass="title-label">
+            <font>
+                <Font name="System Bold" size="24.0"/>
+            </font>
+        </Label>
+        
+        <GridPane vgap="15.0" hgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints minWidth="100.0" prefWidth="150.0"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Patient Name:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Label fx:id="patientNameLabel" text="[Patient Name]" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            
+            <Label text="Date:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Label fx:id="dateLabel" text="[Current Date]" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            
+            <Label text="Diagnosis:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextArea fx:id="diagnosisTextArea" wrapText="true" prefRowCount="3" 
+                     promptText="Enter diagnosis details" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            
+            <Label text="Medications:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextArea fx:id="medicationsTextArea" wrapText="true" prefRowCount="4" 
+                     promptText="Enter medications with dosage and frequency" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            
+            <Label text="Instructions:" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextArea fx:id="instructionsTextArea" wrapText="true" prefRowCount="3" 
+                     promptText="Enter special instructions or precautions" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+        </GridPane>
+        
+        <HBox spacing="10.0" alignment="CENTER_RIGHT">
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" 
+                    styleClass="button-secondary" prefWidth="100.0"/>
+            <Button fx:id="saveButton" text="Save Prescription" onAction="#handleSave" 
+                    styleClass="button-primary" prefWidth="150.0"/>
+        </HBox>
+    </VBox>
+</AnchorPane>

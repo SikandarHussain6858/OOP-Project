@@ -2,35 +2,54 @@ package com.example.rpms.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import java.sql.*;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import com.example.rpms.model.DatabaseConnector;
 
 public class BookAppointmentController {
+    @FXML private ComboBox<String> patientComboBox;
     @FXML private ComboBox<String> doctorComboBox;
-    @FXML private DatePicker appointmentDate;
-    @FXML private ComboBox<String> timeSlotComboBox;
-    @FXML private TextArea reasonTextArea;
+    @FXML private DatePicker appointmentDatePicker;
+    @FXML private TextField timeField;
+    @FXML private TextArea notesArea;
     @FXML private Label statusLabel;
-
-    private String patientId;  // Changed from int to String
+    
+    private String patientId;  // Store the patient ID
 
     @FXML
     public void initialize() {
-        // Set default values and initialize components
-        appointmentDate.setValue(LocalDate.now());
+        // Only load doctors if no patient ID is set (admin mode)
+        if (patientId == null) {
+            loadPatients();
+        }
         loadDoctors();
-        setupTimeSlots();
         
-        // Add listener to doctor selection to update available time slots
-        doctorComboBox.setOnAction(e -> updateAvailableTimeSlots());
+        // Set up date picker to only allow future dates
+        appointmentDatePicker.setDayCellFactory(picker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+                setDisable(empty || date.compareTo(today) < 0);
+            }
+        });
     }
 
-    public void setPatientId(String patientId) {  // Changed from int to String
-        this.patientId = patientId;
+    private void loadPatients() {
+        try (Connection conn = DatabaseConnector.getConnection()) {
+            String sql = "SELECT username FROM users WHERE role = 'PATIENT'";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                ResultSet rs = stmt.executeQuery();
+                while (rs.next()) {
+                    patientComboBox.getItems().add(rs.getString("username"));
+                }
+            }
+        } catch (SQLException e) {
+            showError("Error loading patients: " + e.getMessage());
+        }
     }
 
     private void loadDoctors() {
@@ -38,52 +57,12 @@ public class BookAppointmentController {
             String sql = "SELECT username FROM users WHERE role = 'DOCTOR'";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 ResultSet rs = stmt.executeQuery();
-                ObservableList<String> doctors = FXCollections.observableArrayList();
                 while (rs.next()) {
-                    doctors.add(rs.getString("username"));
+                    doctorComboBox.getItems().add(rs.getString("username"));
                 }
-                doctorComboBox.setItems(doctors);
             }
         } catch (SQLException e) {
             showError("Error loading doctors: " + e.getMessage());
-        }
-    }
-
-    private void setupTimeSlots() {
-        ObservableList<String> timeSlots = FXCollections.observableArrayList(
-            "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
-            "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
-            "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
-            "04:00 PM", "04:30 PM", "05:00 PM"
-        );
-        timeSlotComboBox.setItems(timeSlots);
-    }
-
-    private void updateAvailableTimeSlots() {
-        if (doctorComboBox.getValue() == null || appointmentDate.getValue() == null) {
-            return;
-        }
-
-        try (Connection conn = DatabaseConnector.getConnection()) {
-            String sql = "SELECT appointment_time FROM appointments " +
-                        "WHERE doctor_id = (SELECT user_id FROM users WHERE username = ?) " +
-                        "AND appointment_date = ?";
-            
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, doctorComboBox.getValue());
-                stmt.setDate(2, java.sql.Date.valueOf(appointmentDate.getValue()));
-                
-                ResultSet rs = stmt.executeQuery();
-                ObservableList<String> bookedSlots = FXCollections.observableArrayList();
-                while (rs.next()) {
-                    bookedSlots.add(rs.getString("appointment_time"));
-                }
-                
-                // Remove booked slots from available slots
-                timeSlotComboBox.getItems().removeAll(bookedSlots);
-            }
-        } catch (SQLException e) {
-            showError("Error updating time slots: " + e.getMessage());
         }
     }
 
@@ -93,75 +72,145 @@ public class BookAppointmentController {
             return;
         }
 
-        saveAppointment();
-    }
+        String selectedPatient = patientComboBox.getValue();
+        String selectedDoctor = doctorComboBox.getValue();
+        LocalDate appointmentDate = appointmentDatePicker.getValue();
+        String appointmentTime = timeField.getText();
+        String notes = notesArea.getText();
 
-    private void saveAppointment() {
         try (Connection conn = DatabaseConnector.getConnection()) {
-            String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, " +
-                        "appointment_time, reason, status) VALUES (?, " +
-                        "(SELECT user_id FROM users WHERE username = ?), ?, ?, ?, 'PENDING')";
-            
+            // First get the patient ID if it's not already set
+            if (patientId == null) {
+                String patientSql = "SELECT user_id FROM users WHERE username = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(patientSql)) {
+                    stmt.setString(1, selectedPatient);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        patientId = rs.getString("user_id");
+                    } else {
+                        showError("Selected patient not found.");
+                        return;
+                    }
+                }
+            }
+
+            // Get the doctor ID
+            String doctorId = null;
+            String doctorSql = "SELECT user_id FROM users WHERE username = ?";
+            try (PreparedStatement stmt = conn.prepareStatement(doctorSql)) {
+                stmt.setString(1, selectedDoctor);
+                ResultSet rs = stmt.executeQuery();
+                if (rs.next()) {
+                    doctorId = rs.getString("user_id");
+                } else {
+                    showError("Selected doctor not found.");
+                    return;
+                }
+            }
+
+            // Parse the time and combine with date
+            LocalTime time = LocalTime.parse(appointmentTime);
+            LocalDateTime appointmentDateTime = appointmentDate.atTime(time);
+
+            // Check doctor availability
+            if (!isDoctorAvailable(conn, doctorId, appointmentDateTime)) {
+                showError("Doctor is not available at the selected time.");
+                return;
+            }
+
+            // Insert the appointment
+            String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, notes, status) VALUES (?, ?, ?, ?, 'SCHEDULED')";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, patientId);  // Changed from setInt to setString
-                stmt.setString(2, doctorComboBox.getValue());
-                stmt.setDate(3, java.sql.Date.valueOf(appointmentDate.getValue()));
-                stmt.setString(4, timeSlotComboBox.getValue());
-                stmt.setString(5, reasonTextArea.getText());
+                stmt.setString(1, patientId);
+                stmt.setString(2, doctorId);
+                stmt.setTimestamp(3, Timestamp.valueOf(appointmentDateTime));
+                stmt.setString(4, notes);
                 
-                int affected = stmt.executeUpdate();
-                if (affected > 0) {
+                int rowsAffected = stmt.executeUpdate();
+                if (rowsAffected > 0) {
                     showSuccess("Appointment booked successfully!");
                     clearFields();
+                } else {
+                    showError("Failed to book appointment.");
                 }
             }
         } catch (SQLException e) {
             showError("Error booking appointment: " + e.getMessage());
+        } catch (DateTimeParseException e) {
+            showError("Invalid time format. Please use HH:mm format (e.g., 14:30)");
         }
     }
 
     private boolean validateInputs() {
-        if (doctorComboBox.getValue() == null) {
-            showError("Please select a doctor");
+        if ((patientId == null && patientComboBox.getValue() == null) || 
+            doctorComboBox.getValue() == null || 
+            appointmentDatePicker.getValue() == null || 
+            timeField.getText().isEmpty()) {
+            showError("Please fill in all required fields.");
             return false;
         }
-        if (appointmentDate.getValue() == null) {
-            showError("Please select a date");
+        
+        // Validate time format (HH:mm)
+        if (!timeField.getText().matches("^([01]?[0-9]|2[0-3]):[0-5][0-9]$")) {
+            showError("Please enter a valid time in HH:mm format.");
             return false;
         }
-        if (appointmentDate.getValue().isBefore(LocalDate.now())) {
-            showError("Please select a future date");
-            return false;
-        }
-        if (timeSlotComboBox.getValue() == null) {
-            showError("Please select a time slot");
-            return false;
-        }
-        if (reasonTextArea.getText().trim().isEmpty()) {
-            showError("Please provide a reason for the appointment");
-            return false;
-        }
+        
         return true;
     }
 
-    private void clearFields() {
-        doctorComboBox.setValue(null);
-        appointmentDate.setValue(LocalDate.now());
-        timeSlotComboBox.setValue(null);
-        reasonTextArea.clear();
+    private boolean isDoctorAvailable(Connection conn, String doctorId, LocalDateTime dateTime) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM appointments WHERE doctor_id = ? AND appointment_date = ? AND status != 'CANCELLED'";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, doctorId);
+            stmt.setTimestamp(2, Timestamp.valueOf(dateTime));
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) == 0;
+            }
+        }
+        return false;
     }
 
-    public void cleanup() {
-        // Add any cleanup code here if needed
+    private void clearFields() {
+        if (patientId == null) {
+            patientComboBox.setValue(null);
+        }
+        doctorComboBox.setValue(null);
+        appointmentDatePicker.setValue(null);
+        timeField.clear();
+        notesArea.clear();
+        statusLabel.setText("");
     }
 
     private void showError(String message) {
+        statusLabel.setTextFill(javafx.scene.paint.Color.RED);
         statusLabel.setText(message);
-        statusLabel.setStyle("-fx-text-fill: red;");
     }
 
     private void showSuccess(String message) {
+        statusLabel.setTextFill(javafx.scene.paint.Color.GREEN);
         statusLabel.setText(message);
-        statusLabel.setStyle("-fx-text-fill: green;");
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
+        // When patient ID is set, load their username and set it in the combo box
+        if (patientId != null) {
+            try (Connection conn = DatabaseConnector.getConnection()) {
+                String sql = "SELECT username FROM users WHERE user_id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, patientId);
+                    ResultSet rs = stmt.executeQuery();
+                    if (rs.next()) {
+                        String patientUsername = rs.getString("username");
+                        patientComboBox.setValue(patientUsername);
+                        patientComboBox.setDisable(true); // Lock the patient selection
+                    }
+                }
+            } catch (SQLException e) {
+                showError("Error setting patient: " + e.getMessage());
+            }
+        }
     }
 }

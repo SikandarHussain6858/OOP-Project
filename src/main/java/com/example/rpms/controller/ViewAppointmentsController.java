@@ -70,6 +70,82 @@ public class ViewAppointmentsController {
         }
     }
 
+    public void loadAppointments(String patientId) {
+        appointmentList.clear();
+        String sql = "SELECT a.appointment_id, p.username as patient_name, d.username as doctor_name, " +
+                    "DATE_FORMAT(a.appointment_date, '%Y-%m-%d') as app_date, " +
+                    "DATE_FORMAT(a.appointment_date, '%h:%i %p') as app_time, " +
+                    "a.status " +
+                    "FROM appointments a " +
+                    "JOIN users p ON a.patient_id = p.user_id " +
+                    "JOIN users d ON a.doctor_id = d.user_id " +
+                    "WHERE a.patient_id = ? " +
+                    "ORDER BY a.appointment_date DESC";
+
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, patientId);
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("appointment_id"),
+                    rs.getString("patient_name"),
+                    rs.getString("doctor_name"),
+                    rs.getString("app_date"),
+                    rs.getString("app_time"),
+                    rs.getString("status")
+                };
+                appointmentList.add(row);
+            }
+            appointmentTable.setItems(appointmentList);
+            if (appointmentList.isEmpty()) {
+                showError("No appointments booked yet.");
+            } else {
+                showSuccess("Appointments loaded successfully");
+            }
+        } catch (SQLException e) {
+            showError("Error loading appointments: " + e.getMessage());
+        }
+    }
+
+    public void loadAppointmentsForDoctor(String doctorId) {
+        appointmentList.clear();
+        String sql = """
+            SELECT a.appointment_id, p.username as patient_name, d.username as doctor_name,
+                   DATE_FORMAT(a.appointment_date, '%Y-%m-%d') as app_date,
+                   DATE_FORMAT(a.appointment_date, '%h:%i %p') as app_time,
+                   a.status
+            FROM appointments a
+            JOIN users p ON a.patient_id = p.user_id
+            JOIN users d ON a.doctor_id = d.user_id
+            WHERE a.doctor_id = ?
+            ORDER BY a.appointment_date DESC
+        """;
+
+        try (Connection conn = DatabaseConnector.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, doctorId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Object[] row = {
+                    rs.getInt("appointment_id"),
+                    rs.getString("patient_name"),
+                    rs.getString("doctor_name"),
+                    rs.getString("app_date"),
+                    rs.getString("app_time"),
+                    rs.getString("status")
+                };
+                appointmentList.add(row);
+            }
+            appointmentTable.setItems(appointmentList);
+
+        } catch (SQLException e) {
+            showError("Error loading appointments: " + e.getMessage());
+        }
+    }
+
     private void showError(String message) {
         statusLabel.setText("❌ " + message);
         statusLabel.setStyle("-fx-text-fill: #e74c3c; -fx-font-weight: bold;");

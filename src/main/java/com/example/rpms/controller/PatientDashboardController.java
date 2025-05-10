@@ -1,199 +1,115 @@
 package com.example.rpms.controller;
 
-import com.example.rpms.model.*;
-import javafx.application.Platform;
+import com.example.rpms.model.Patient;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.Modality;
-import java.io.IOException;
-import java.net.URL;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import com.example.rpms.model.DatabaseConnector;
-import com.example.rpms.model.Patient;
-// Ensure the correct package path for PatientProfileController
+import java.io.IOException;
 
 public class PatientDashboardController {
-    @FXML 
-    private VBox mainContent;
-    private String patientId;
-    private Timer medicationReminderTimer;
-    private Map<String, Stage> openWindows = new HashMap<>();
 
     @FXML
-    public void initialize() {
-        if (patientId == null || patientId.isEmpty()) {
-            showError("Patient ID not set. Please log in again.");
-            return;
-        }
-        setupMedicationReminders();
-        loadPatientDashboard();
-    }
+    private VBox mainContent;
 
-    private void loadPatientDashboard() {
-        VBox dashboard = new VBox(10);
-        dashboard.getChildren().addAll(
-            createWelcomeSection(),
-            createVitalsChart(), // Ensure the method is defined below
-            createUpcomingAppointments(), // Ensure this method is defined below
-            createMedicationSchedule() // Ensure the method is defined below
-        );
-        mainContent.getChildren().setAll(dashboard);
-    }
+    private String patientId;
 
-    private VBox createWelcomeSection() {
-        VBox welcomeSection = new VBox();
-        Label welcomeLabel = new Label("Welcome to your Dashboard!");
-        welcomeLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        welcomeSection.getChildren().add(welcomeLabel);
-        return welcomeSection;
-    }
-
-    private VBox createVitalsChart() {
-        VBox vitalsChartSection = new VBox();
-        Label vitalsChartLabel = new Label("Vitals Chart");
-        vitalsChartLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        vitalsChartSection.getChildren().add(vitalsChartLabel);
-        // Add logic to display vitals chart
-        return vitalsChartSection;
-    }
-
-    private VBox createMedicationSchedule() {
-        VBox medicationScheduleSection = new VBox();
-        Label medicationScheduleLabel = new Label("Medication Schedule");
-        medicationScheduleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        medicationScheduleSection.getChildren().add(medicationScheduleLabel);
-        // Add logic to fetch and display medication schedule
-        return medicationScheduleSection;
-    }
-
-    private VBox createUpcomingAppointments() {
-        VBox appointmentsSection = new VBox();
-        Label appointmentsLabel = new Label("Upcoming Appointments");
-        appointmentsLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-        appointmentsSection.getChildren().add(appointmentsLabel);
-        // Add logic to fetch and display upcoming appointments
-        return appointmentsSection;
+    public void setPatientId(String id) {
+        this.patientId = id;
     }
 
     @FXML
     private void handleUploadVitals() {
-        loadModalWindow("uploadVitals", "Upload Vitals");
+        loadContent("uploadVitals", "Upload Vitals");
     }
 
     @FXML
     private void handleViewReports() {
-        loadModalWindow("viewReports", "View Reports");
+        loadContent("viewReport", "View Reports");
     }
 
     @FXML
     private void handleDoctorFeedback() {
-        loadModalWindow("doctorFeedback", "Doctor Feedback");
-    }
-
-    @FXML
-    private void handleBookAppointment() {
-        loadModalWindow("bookAppointment", "Book Appointment");
-    }
-
-
-    @FXML
+        loadContent("doctorFeedback", "Doctor Feedback");
+    }    @FXML
     private void handleEmergencyAlert() {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Emergency Alert");
-        alert.setHeaderText("Send Emergency Alert?");
-        alert.setContentText("This will notify medical staff immediately. Continue?");
-
-        alert.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.OK) {
-                sendEmergencyAlert();
-            }
-        });
-    }
-
-    private void sendEmergencyAlert() {
-        try (var conn = DatabaseConnector.getConnection()) {
-            String sql = "INSERT INTO emergency_alerts (patient_id, status) VALUES (?, 'ACTIVE')";
-            try (var stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, patientId);
-                stmt.executeUpdate();
-                showInfo("Emergency alert has been sent. Medical staff will be notified.");
-            }
-        } catch (SQLException e) {
-            showError("Failed to send emergency alert: " + e.getMessage());
-        }
+        loadContent("EmergencyAlerts", "Emergency Alert");
     }
 
     @FXML
     private void handleViewProfile() {
-        loadModalWindow("Patientprofile", "My Profile");
+        loadContent("Patientprofile", "Patient Profile");
     }
 
     @FXML
     private void handleLogout() {
-        if (medicationReminderTimer != null) {
-            medicationReminderTimer.cancel();
-        }
         try {
-            // Close all open windows
-            openWindows.values().forEach(Stage::close);
-            openWindows.clear();
-
-            // Load login screen
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/login.fxml"));
             Parent root = loader.load();
-            
             Stage stage = (Stage) mainContent.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setTitle("Login - RPMS");
+            stage.centerOnScreen();
         } catch (IOException e) {
-            showError("Error returning to login screen: " + e.getMessage());
+            showError("Error loading login page: " + e.getMessage());
         }
     }
 
-    private void loadModalWindow(String fxmlName, String title) {
+    @FXML
+    private void handleChatWithDoctor() {
+        loadContent("email", "Chat with Doctor");
+    }
+
+    @FXML
+    private void handleViewAppointments() {
+        loadContent("ViewAppointments", "View Appointments");
+    }
+
+    @FXML
+    private void handleViewPrescriptions() {
+        loadContent("view_prescriptions", "View Prescriptions");
+    }
+
+    @FXML
+    private void handleVideoConsultations() {
+        loadContent("patient_video_consultations", "Video Consultations");
+    }
+
+    private void loadContent(String fxmlName, String title) {
         try {
-            if (openWindows.containsKey(fxmlName)) {
-                openWindows.get(fxmlName).requestFocus();
-                return;
+            System.out.println("Loading FXML: " + fxmlName);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/" + fxmlName + ".fxml"));
+            Parent content = loader.load();
+            Object controller = loader.getController();
+            System.out.println("Controller loaded: " + (controller != null ? controller.getClass().getSimpleName() : "null"));
+            if (controller != null) {
+                if (controller instanceof ViewAppointmentsController) {
+                    ((ViewAppointmentsController) controller).loadAppointments(patientId);
+                } else if (controller instanceof DoctorFeedbackController) {
+                    ((DoctorFeedbackController) controller).setPatientId(patientId);
+                } else if (controller instanceof BookAppointmentController) {
+                    ((BookAppointmentController) controller).setPatientId(patientId);
+                } else if (controller instanceof EmergencyAlertController) {
+                    ((EmergencyAlertController) controller).setPatientId(patientId);
+                } else if (controller instanceof ViewReportController) {
+                    ((ViewReportController) controller).setPatientId(patientId);
+                } else if (controller instanceof ViewPrescriptionsController) {
+                    ((ViewPrescriptionsController) controller).setPatientId(patientId);
+                } else if (controller instanceof PatientVideoConsultationsController) {
+                    ((PatientVideoConsultationsController) controller).setPatientId(patientId);
+                }
             }
 
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/" + fxmlName + ".fxml"));
-            Parent root = loader.load();
-
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle(title);
-            stage.setScene(new Scene(root));
-            
-            openWindows.put(fxmlName, stage);
-            stage.setOnCloseRequest(e -> openWindows.remove(fxmlName));
-            
-            stage.show();
-
+            mainContent.getChildren().clear();
+            mainContent.getChildren().add(content);
         } catch (IOException e) {
+            e.printStackTrace();
             showError("Error loading " + title + ": " + e.getMessage());
         }
     }
-
 
     private void showError(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -203,27 +119,8 @@ public class PatientDashboardController {
         alert.showAndWait();
     }
 
-    private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Information");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void setupMedicationReminders() {
-        medicationReminderTimer = new Timer(true);
-        medicationReminderTimer.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                checkMedicationSchedule();
-            }
-        }, 0, 60000);
-    }
-
-    private void checkMedicationSchedule() {
-        Platform.runLater(() -> {
-            // Show notification using JavaFX Alert
-        });
+    @FXML
+    public void initialize() {
+        System.out.println("PatientDashboardController initialized successfully.");
     }
 }

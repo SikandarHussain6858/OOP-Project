@@ -96,13 +96,12 @@ CREATE TABLE consultation_requests (
 -- Create patient vitals table
 CREATE TABLE IF NOT EXISTS patient_vitals (
     vital_id INT PRIMARY KEY AUTO_INCREMENT,
-    patient_id INT,
-    bp_systolic DOUBLE,
-    bp_diastolic DOUBLE,
-    heart_rate DOUBLE,
-    temperature DOUBLE,
-    oxygen_saturation DOUBLE,
-    glucose DOUBLE,
+    patient_id VARCHAR(50) NOT NULL,
+    heart_rate DOUBLE NOT NULL,
+    oxygen_saturation DOUBLE NOT NULL,
+    bp_systolic DOUBLE NOT NULL,
+    bp_diastolic DOUBLE NOT NULL,
+    temperature DOUBLE NOT NULL,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(user_id)
 );
@@ -115,4 +114,56 @@ CREATE TABLE IF NOT EXISTS patient_alerts (
     status VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(user_id)
+);
+
+-- Create feedbacks table
+CREATE TABLE IF NOT EXISTS feedbacks (
+    feedback_id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT,
+    doctor_id INT,
+    feedback TEXT,
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create reports table
+CREATE TABLE IF NOT EXISTS reports (
+    report_id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT,
+    date DATE,
+    report_type VARCHAR(100),
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create patient-doctor relationship table
+CREATE TABLE IF NOT EXISTS patient_doctor (
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (patient_id, doctor_id),
+    FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create notifications table
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- Create notifications table
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );

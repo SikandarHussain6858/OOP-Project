@@ -3,25 +3,33 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox xmlns="http://javafx.com/javafx/17.0.12"
-      xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.example.rpms.controller.EmergencyAlertController"
-      spacing="15" alignment="TOP_CENTER"
-      style="-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 12;">
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.rpms.controller.EmergencyAlertController"
+            prefWidth="800" prefHeight="600">
+    
+    <children>
+        <VBox layoutX="20" layoutY="20" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20"
+              AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
 
-    <Label text="🚨 Emergency Alert"
-           style="-fx-font-size: 22px; -fx-font-weight: bold; -fx-text-fill: #c0392b;" />
+            <Label text="Emergency Alert Center" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
 
-    <TextField fx:id="emailField" promptText="Enter recipient email"
-               prefWidth="300" style="-fx-font-size: 14px;" />
+            <VBox spacing="10">
+                <Label text="Submit New Emergency Alert" />
+                <ComboBox fx:id="alertTypeComboBox" promptText="Select Alert Type"/>
+                <TextArea fx:id="messageArea" promptText="Describe your emergency..." prefRowCount="3"/>
+                <Button text="Submit Alert" onAction="#handleSubmitAlert"/>
+            </VBox>
 
-    <TextArea fx:id="descriptionArea" promptText="Describe the emergency..."
-              prefHeight="150" wrapText="true" style="-fx-font-size: 14px;" />
-
-    <Button text="Send Alert"
-            onAction="#handleSendAlert"
-            style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-
-    <Label fx:id="statusLabel" text=""
-           style="-fx-text-fill: #2c3e50; -fx-font-size: 12px;" />
-</VBox>
+            <VBox spacing="10">
+                <Label text="Your Alert History" />
+                <TableView fx:id="alertsTable">
+                    <columns>
+                        <TableColumn fx:id="dateColumn" text="Date"/>
+                        <TableColumn fx:id="typeColumn" text="Type"/>
+                        <TableColumn fx:id="messageColumn" text="Message"/>
+                        <TableColumn fx:id="statusColumn" text="Status"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </VBox>
+    </children>
+</AnchorPane>

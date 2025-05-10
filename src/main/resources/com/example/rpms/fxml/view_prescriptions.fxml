@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.rpms.controller.ViewPrescriptionsController"
+      spacing="10" alignment="CENTER"
+      style="-fx-background-color: linear-gradient(to bottom right, #ecf0f1, #ffffff);">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header -->
+    <Label text="My Prescriptions"
+           style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+
+    <!-- Prescriptions Table -->
+    <TableView fx:id="prescriptionsTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="dateColumn" text="Date" prefWidth="100"/>
+            <TableColumn fx:id="doctorColumn" text="Doctor" prefWidth="150"/>
+            <TableColumn fx:id="diagnosisColumn" text="Diagnosis" prefWidth="200"/>
+            <TableColumn fx:id="medicationsColumn" text="Medications" prefWidth="200"/>
+            <TableColumn fx:id="instructionsColumn" text="Instructions" prefWidth="200"/>
+        </columns>
+    </TableView>
+
+    <!-- Status Label -->
+    <Label fx:id="statusLabel" wrapText="true"
+           style="-fx-font-size: 14px;"/>
+
+    <!-- Refresh Button -->
+    <Button text="🔄 Refresh" onAction="#handleRefresh"
+            style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;"/>
+
+</VBox>

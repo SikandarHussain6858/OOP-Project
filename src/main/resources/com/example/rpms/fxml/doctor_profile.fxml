@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.rpms.controller.DoctorProfileController"
+      spacing="20" style="-fx-padding: 20;">
+    
+    <Label text="My Profile" 
+           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    
+    <!-- Profile Information -->
+    <GridPane hgap="10" vgap="10">
+        <padding><Insets top="20" right="20" bottom="20" left="20"/></padding>
+
+        <!-- Name -->
+        <Label text="Name:" style="-fx-font-weight: bold;" 
+               GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+        <Label fx:id="nameLabel" text="--" 
+               GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+        <!-- Email -->
+        <Label text="Email:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+        <Label fx:id="emailLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+        <!-- Contact -->
+        <Label text="Contact:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+        <Label fx:id="contactLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+        <!-- Specialization -->
+        <Label text="Specialization:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+        <Label fx:id="specializationLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+
+        <!-- Qualification -->
+        <Label text="Qualification:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+        <Label fx:id="qualificationLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+
+        <!-- Experience -->
+        <Label text="Years of Experience:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+        <Label fx:id="experienceLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+
+        <!-- Assigned Patients -->
+        <Label text="Assigned Patients:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="6"/>
+        <Label fx:id="assignedPatientsLabel" text="--"
+               GridPane.columnIndex="1" GridPane.rowIndex="6"/>
+
+        <!-- Remarks -->
+        <Label text="Remarks:" style="-fx-font-weight: bold;"
+               GridPane.columnIndex="0" GridPane.rowIndex="7"/>
+        <Label fx:id="remarksLabel" text="--" wrapText="true"
+               GridPane.columnIndex="1" GridPane.rowIndex="7"/>
+    </GridPane>
+
+    <!-- Action Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button fx:id="editButton" text="Edit Profile" onAction="#handleEditProfile"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+    </HBox>
+
+</VBox>

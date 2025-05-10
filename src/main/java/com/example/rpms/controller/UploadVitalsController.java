@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import com.example.rpms.model.DatabaseConnector;
 
 public class UploadVitalsController {
+
     @FXML private ComboBox<String> heartRateComboBox;
     @FXML private ComboBox<String> oxygenLevelComboBox;
     @FXML private ComboBox<String> systolicComboBox;
@@ -52,14 +53,13 @@ public class UploadVitalsController {
     @FXML
     private void handleUploadVitals() {
         if (!validateInputs()) {
-            showMessage("Please fill in all fields", true);
-            return;
+            return; // Stop processing if validation fails
         }
 
         try (Connection conn = DatabaseConnector.getConnection()) {
             String sql = "INSERT INTO patient_vitals (patient_id, heart_rate, oxygen_saturation, " +
-                        "bp_systolic, bp_diastolic, temperature, recorded_at) " +
-                        "VALUES (?, ?, ?, ?, ?, ?, ?)";
+                         "bp_systolic, bp_diastolic, temperature, recorded_at) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, patientId);
@@ -74,55 +74,38 @@ public class UploadVitalsController {
                 if (result > 0) {
                     showMessage("Vitals uploaded successfully!", false);
                     clearFields();
-                    checkVitalsForAlert();
+                } else {
+                    showMessage("Failed to upload vitals.", true);
                 }
             }
         } catch (Exception e) {
+            e.printStackTrace();
             showMessage("Error uploading vitals: " + e.getMessage(), true);
         }
     }
 
     private boolean validateInputs() {
-        return heartRateComboBox.getValue() != null &&
-               oxygenLevelComboBox.getValue() != null &&
-               systolicComboBox.getValue() != null &&
-               diastolicComboBox.getValue() != null &&
-               temperatureComboBox.getValue() != null;
-    }
-
-    private void checkVitalsForAlert() {
-        // Check for concerning vital signs
-        double heartRate = extractHeartRate(heartRateComboBox.getValue());
-        double oxygenLevel = extractOxygenLevel(oxygenLevelComboBox.getValue());
-        double systolic = extractSystolic(systolicComboBox.getValue());
-        double temperature = extractTemperature(temperatureComboBox.getValue());
-
-        if (heartRate > 100 || heartRate < 60 ||
-            oxygenLevel < 90 ||
-            systolic > 180 || systolic < 90 ||
-            temperature > 38.0) {
-            
-            createAlert("Abnormal vital signs detected. Please seek medical attention if you experience any discomfort.");
+        if (heartRateComboBox.getValue() == null) {
+            showMessage("Please select a heart rate range.", true);
+            return false;
         }
-    }
-
-    private void createAlert(String message) {
-        try (Connection conn = DatabaseConnector.getConnection()) {
-            String sql = "INSERT INTO patient_alerts (patient_id, alert_message, status) VALUES (?, ?, 'ACTIVE')";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, patientId);
-                stmt.setString(2, message);
-                stmt.executeUpdate();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (oxygenLevelComboBox.getValue() == null) {
+            showMessage("Please select an oxygen level range.", true);
+            return false;
         }
-    }
-
-    private void showMessage(String message, boolean isError) {
-        messageLabel.setText(message);
-        messageLabel.setStyle("-fx-text-fill: " + (isError ? "red" : "green"));
-        messageLabel.setVisible(true);
+        if (systolicComboBox.getValue() == null) {
+            showMessage("Please select a systolic blood pressure range.", true);
+            return false;
+        }
+        if (diastolicComboBox.getValue() == null) {
+            showMessage("Please select a diastolic blood pressure range.", true);
+            return false;
+        }
+        if (temperatureComboBox.getValue() == null) {
+            showMessage("Please select a temperature range.", true);
+            return false;
+        }
+        return true;
     }
 
     private void clearFields() {
@@ -133,8 +116,15 @@ public class UploadVitalsController {
         temperatureComboBox.setValue(null);
     }
 
+    private void showMessage(String message, boolean isError) {
+        messageLabel.setText(message);
+        messageLabel.setStyle("-fx-text-fill: " + (isError ? "red" : "green"));
+        messageLabel.setVisible(true);
+    }
+
     // Helper methods to extract numeric values from combo box selections
     private double extractHeartRate(String value) {
+        if (value == null || value.isEmpty()) return 0; // Default value for null or empty
         if (value.startsWith("Below")) return 59;
         if (value.startsWith("Above")) return 101;
         String[] range = value.split("-");
@@ -142,12 +132,14 @@ public class UploadVitalsController {
     }
 
     private double extractOxygenLevel(String value) {
+        if (value == null || value.isEmpty()) return 0; // Default value for null or empty
         if (value.startsWith("Below")) return 89;
         String[] range = value.split("-");
         return (Double.parseDouble(range[0]) + Double.parseDouble(range[1])) / 2;
     }
 
     private double extractSystolic(String value) {
+        if (value == null || value.isEmpty()) return 0; // Default value for null or empty
         if (value.startsWith("Below")) return 119;
         if (value.startsWith("Above")) return 181;
         String[] range = value.split("-");
@@ -155,6 +147,7 @@ public class UploadVitalsController {
     }
 
     private double extractDiastolic(String value) {
+        if (value == null || value.isEmpty()) return 0; // Default value for null or empty
         if (value.startsWith("Below")) return 79;
         if (value.startsWith("Above")) return 121;
         String[] range = value.split("-");
@@ -162,6 +155,7 @@ public class UploadVitalsController {
     }
 
     private double extractTemperature(String value) {
+        if (value == null || value.isEmpty()) return 0; // Default value for null or empty
         if (value.startsWith("Below")) return 34.9;
         if (value.startsWith("Above")) return 38.1;
         String[] range = value.split("-");
