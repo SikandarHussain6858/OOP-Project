@@ -38,6 +38,10 @@ public class PatientDetailsController {
     public void initialize() {
         setupEmergencyAlertsTable();
         setupFeedbackTable();
+        
+        // Add column sizing
+        alertsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        feedbackTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
     }
 
     private void setupEmergencyAlertsTable() {
@@ -57,7 +61,9 @@ public class PatientDetailsController {
 
     public void setPatientId(String patientId) {
         this.patientId = patientId;
-        loadAllData();
+        if (patientId != null) {
+            loadAllData();
+        }
     }
 
     public void setDoctorId(String doctorId) {
@@ -65,10 +71,15 @@ public class PatientDetailsController {
     }
 
     private void loadAllData() {
-        loadPatientInfo();
-        loadLatestVitals();
-        loadEmergencyAlerts();
-        loadFeedbackHistory();
+        try {
+            loadPatientInfo();
+            loadLatestVitals();
+            loadEmergencyAlerts();
+            loadFeedbackHistory();
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Error loading patient data: " + e.getMessage());
+        }
     }
 
     @FXML

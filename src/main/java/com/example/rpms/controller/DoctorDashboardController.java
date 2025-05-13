@@ -6,7 +6,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 import java.io.IOException;
 
@@ -25,7 +27,7 @@ public class DoctorDashboardController {
             // Load doctor information from database using doctorId
             // Update UI elements accordingly
         } catch (Exception e) {
-            showError("Error loading doctor information: " + e.getMessage());
+            showError("Load Doctor Info Error", "Error loading doctor information: " + e.getMessage());
         }
     }
 
@@ -41,28 +43,30 @@ public class DoctorDashboardController {
             stage.setScene(new Scene(root));
             stage.show();
         } catch (IOException e) {
-            showError("Error loading patient data view: " + e.getMessage());
+            showError("Patient Data View Error", "Error loading patient data view: " + e.getMessage());
         }
     }
 
     @FXML
-    private void handleGiveFeedback() {
-        showInfo("Give Feedback", "This would allow you to write feedback for a patient.");
+    private void handleViewFeedback() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/view_patient_feedback.fxml"));
+            Parent root = loader.load();
+            ViewPatientFeedbackController controller = loader.getController();
+            controller.setDoctorId(doctorId);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Patient Feedback");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Feedback View Error", "Error loading feedback view: " + e.getMessage());
+        }
     }
 
     @FXML
     private void handleScheduleAppointments() {
-        showInfo("Schedule Appointments", "This would allow you to schedule a new appointment.");
-    }
-
-    @FXML
-    private void handleViewHistory() {
-        showInfo("Patient History", "This would display the patient's medical history.");
-    }
-
-    @FXML
-    private void handleWritePrescription() {
-        loadContent("write_prescription", "Write Prescription");
+        loadContent("bookAppointment", "Book Appointment");
     }
 
     @FXML
@@ -71,16 +75,25 @@ public class DoctorDashboardController {
     }
 
     @FXML
-    private void handleViewPatients() {
-        loadContent("doctor_view_patients", "My Patients");
+    private void handleViewAppointments() {
+        loadContent("ViewAppointments", "Appointments");
     }
 
     @FXML
-    private void handleViewAppointments() {
-        loadContent("ViewAppointments", "Appointments");
-    }    @FXML
     private void handleEmergencyAlerts() {
-        loadContent("doctor_emergency_alerts", "Emergency Alerts");
+        try {            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/EmergencyAlerts.fxml"));
+            Parent root = loader.load();
+            EmergencyAlertController controller = loader.getController();
+            controller.setDoctorId(doctorId);
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setTitle("Emergency Alerts");
+            stage.setScene(new Scene(root));
+            stage.show();
+        } catch (IOException e) {
+            showError("Emergency Alerts Error", "Error loading emergency alerts: " + e.getMessage());
+        }
+          
     }
 
     @FXML
@@ -102,7 +115,7 @@ public class DoctorDashboardController {
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
         } catch (IOException e) {
-            showError("Error loading login page: " + e.getMessage());
+            showError("Login Error", "Error loading login page: " + e.getMessage());
         }
     }
 
@@ -117,31 +130,30 @@ public class DoctorDashboardController {
             if (controller != null) {
                 if (controller instanceof ViewAppointmentsController) {
                     ((ViewAppointmentsController) controller).loadAppointmentsForDoctor(doctorId);
-                } else if (controller instanceof DoctorEmergencyAlertController) {
-                    ((DoctorEmergencyAlertController) controller).setDoctorId(doctorId);                } else if (controller instanceof DoctorEmergencyAlertController) {
-                    ((DoctorEmergencyAlertController) controller).setDoctorId(doctorId);
                 } else if (controller instanceof DoctorProfileController) {
                     ((DoctorProfileController) controller).setDoctorId(doctorId);
                 } else if (controller instanceof DoctorViewPatientsController) {
                     ((DoctorViewPatientsController) controller).setDoctorId(doctorId);
                 } else if (controller instanceof EmailController) {
                     ((EmailController) controller).setUserId(doctorId);
-                } else if (controller instanceof WritePrescriptionController) {
-                    ((WritePrescriptionController) controller).setDoctorId(doctorId);
                 }
             }
 
-            mainContent.getChildren().clear();
-            mainContent.getChildren().add(content);
+            if (content != null) {
+                mainContent.getChildren().clear();
+                mainContent.getChildren().add(content);
+            } else {
+                showError("Error", "Failed to load content for " + title);
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Error loading " + title + ": " + e.getMessage());
+            showError(title, "Error loading " + title + ": " + e.getMessage());
         }
     }
 
-    private void showError(String message) {
+    private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
+        alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

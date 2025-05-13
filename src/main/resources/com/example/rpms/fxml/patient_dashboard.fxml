@@ -29,7 +29,8 @@
         <Button text="📑 View Reports" prefWidth="180" onAction="#handleViewReports"
                 style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="💬 Doctor Feedback" prefWidth="180" onAction="#handleDoctorFeedback"
-                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />        <Button text="🚨 Emergency Alert" prefWidth="180" onAction="#handleEmergencyAlert"
+                style="-fx-background-color: #9b59b6; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />        
+        <Button text="🚨 Emergency Alert" prefWidth="180" onAction="#handleEmergencyAlert"
                 style="-fx-background-color: #e67e22; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="📆 View Appointments" prefWidth="180" onAction="#handleViewAppointments"
                 style="-fx-background-color: #34495e; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
@@ -39,7 +40,6 @@
                 style="-fx-background-color: #f1c40f; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
         <Button text="🎥 Video Consultations" prefWidth="180" onAction="#handleVideoConsultations"
                 style="-fx-background-color: #16a085; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
-        
     </VBox>
 
     <!-- Main Content Area -->

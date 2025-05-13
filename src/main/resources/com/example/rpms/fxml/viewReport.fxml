@@ -44,6 +44,11 @@
                        style="-fx-font-size: 18px; -fx-font-weight: bold;" />
                 <TableView fx:id="reportsTable" VBox.vgrow="ALWAYS">
                     <columns>
+                        <TableColumn fx:id="dateColumn" text="Date" prefWidth="150"/>
+                        <TableColumn fx:id="bloodPressureColumn" text="Blood Pressure" prefWidth="150"/>
+                        <TableColumn fx:id="heartRateColumn" text="Heart Rate" prefWidth="100"/>
+                        <TableColumn fx:id="temperatureColumn" text="Temperature" prefWidth="100"/>
+                        <TableColumn fx:id="notesColumn" text="Notes" prefWidth="200"/>
                     </columns>
                 </TableView>
             </VBox>
@@ -68,6 +73,8 @@
                       opacity="1.0" />
             </VBox>
 
+            <Label fx:id="statusLabel" wrapText="true"
+                   style="-fx-text-fill: red;"/>
         </VBox>
     </center>
 </BorderPane>

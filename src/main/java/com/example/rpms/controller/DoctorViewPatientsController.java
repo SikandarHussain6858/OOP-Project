@@ -130,30 +130,12 @@ public class DoctorViewPatientsController {
             Stage stage = new Stage();
             stage.setTitle("Patient Details - " + selectedPatient[1]);
             stage.setScene(new Scene(root));
+            stage.setMinWidth(800);  // Set minimum width
+            stage.setMinHeight(600); // Set minimum height
             stage.show();
         } catch (Exception e) {
+            e.printStackTrace(); // Add this to see detailed error
             showError("Error opening patient details: " + e.getMessage());
-        }
-    }
-
-    @FXML
-    private void handleAddReport() {
-        Object[] selectedPatient = patientTable.getSelectionModel().getSelectedItem();
-        if (selectedPatient == null) {
-            showError("Please select a patient first");
-            return;
-        }
-
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/add_report.fxml"));
-            Parent root = loader.load();
-            
-            Stage stage = new Stage();
-            stage.setTitle("Add Report");
-            stage.setScene(new Scene(root));
-            stage.show();
-        } catch (Exception e) {
-            showError("Error opening add report form: " + e.getMessage());
         }
     }
 

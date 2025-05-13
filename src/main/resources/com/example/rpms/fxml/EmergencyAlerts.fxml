@@ -10,9 +10,7 @@
         <VBox layoutX="20" layoutY="20" spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20"
               AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
 
-            <Label text="Emergency Alert Center" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
-
-            <VBox spacing="10">
+            <Label text="Emergency Alert Center" style="-fx-font-size: 24px; -fx-font-weight: bold;"/>            <VBox fx:id="submitAlertBox" spacing="10">
                 <Label text="Submit New Emergency Alert" />
                 <ComboBox fx:id="alertTypeComboBox" promptText="Select Alert Type"/>
                 <TextArea fx:id="messageArea" promptText="Describe your emergency..." prefRowCount="3"/>
@@ -20,10 +18,11 @@
             </VBox>
 
             <VBox spacing="10">
-                <Label text="Your Alert History" />
+                <Label fx:id="alertHistoryLabel" text="Your Alert History" />
                 <TableView fx:id="alertsTable">
                     <columns>
                         <TableColumn fx:id="dateColumn" text="Date"/>
+                        <TableColumn fx:id="patientNameColumn" text="Patient"/>
                         <TableColumn fx:id="typeColumn" text="Type"/>
                         <TableColumn fx:id="messageColumn" text="Message"/>
                         <TableColumn fx:id="statusColumn" text="Status"/>

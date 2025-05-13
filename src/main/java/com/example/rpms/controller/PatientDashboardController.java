@@ -29,7 +29,25 @@ public class PatientDashboardController {
 
     @FXML
     private void handleViewReports() {
-        loadContent("viewReport", "View Reports");
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/viewReport.fxml"));
+            Parent root = loader.load();
+            
+            ViewReportController controller = loader.getController();
+            controller.setPatientId(patientId);
+            
+            Stage stage = new Stage();
+            stage.setTitle("Patient Reports");
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setMinWidth(800);
+            stage.setMinHeight(600);
+            stage.show();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Error loading view reports: " + e.getMessage());
+        }
     }
 
     @FXML

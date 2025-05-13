@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.*?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.rpms.controller.ViewPatientFeedbackController"
+            prefWidth="800" prefHeight="600">
+    
+    <VBox spacing="20" AnchorPane.topAnchor="20" AnchorPane.leftAnchor="20" 
+          AnchorPane.rightAnchor="20" AnchorPane.bottomAnchor="20">
+        
+        <Label text="Patient Feedback" 
+               style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+        
+        <TableView fx:id="feedbackTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="dateColumn" text="Date" prefWidth="150"/>
+                <TableColumn fx:id="patientColumn" text="Patient" prefWidth="150"/>
+                <TableColumn fx:id="feedbackColumn" text="Feedback" prefWidth="400"/>
+            </columns>
+            <placeholder>
+                <Label text="No feedback available"/>
+            </placeholder>
+        </TableView>
+        
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button text="Refresh" onAction="#handleRefresh"
+                    style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+            <Button text="Close" onAction="#handleClose"
+                    style="-fx-background-color: #95a5a6; -fx-text-fill: white;"/>
+        </HBox>
+        
+    </VBox>
+</AnchorPane>

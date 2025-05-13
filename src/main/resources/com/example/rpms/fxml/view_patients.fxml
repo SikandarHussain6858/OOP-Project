@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.rpms.controller.ViewPatientsController"
+      spacing="20" style="-fx-padding: 20;">
+    
+    <Label text="My Patients" 
+           style="-fx-font-size: 24px; -fx-font-weight: bold;"/>
+    
+    <!-- Search Section -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="searchField" promptText="Search patients..." prefWidth="300"/>
+        <Button text="Search" onAction="#handleSearch"
+                style="-fx-background-color: #3498db; -fx-text-fill: white;"/>
+    </HBox>
+    
+    <!-- Patients Table -->
+    <TableView fx:id="patientTable" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="idColumn" text="ID" prefWidth="100"/>
+            <TableColumn fx:id="nameColumn" text="Name" prefWidth="150"/>
+            <TableColumn fx:id="emailColumn" text="Email" prefWidth="180"/>
+            <TableColumn fx:id="phoneColumn" text="Phone" prefWidth="120"/> 
+            <TableColumn fx:id="dobColumn" text="DOB" prefWidth="100"/>
+            <TableColumn fx:id="genderColumn" text="Gender" prefWidth="80"/>
+            <TableColumn fx:id="actionColumn" text="Action" prefWidth="100"/>
+        </columns>
+    </TableView>
+
+    <!-- Action Buttons -->
+    <HBox spacing="10" alignment="CENTER_RIGHT">
+        <Button text="View Details" onAction="#handleViewDetails"
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white;"/>
+        <Button text="Add Report" onAction="#handleAddReport"
+                style="-fx-background-color: #9b59b6; -fx-text-fill: white;"/>
+        <Button text="Send Message" onAction="#handleSendMessage"
+                style="-fx-background-color: #e67e22; -fx-text-fill: white;"/>
+    </HBox>
+</VBox>

@@ -9,6 +9,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Modality;
 
 import java.io.IOException;
@@ -85,25 +86,27 @@ public class AdminDashboardController {
     @FXML
     private void handleEmergencyAlerts() {
         try {
-            if (openWindows.containsKey("emergencyAlerts")) {
-                openWindows.get("emergencyAlerts").requestFocus();
-                return;
-            }
-
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/com/example/rpms/fxml/emergencyAlerts.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/rpms/fxml/admin_doctor_emergency.fxml"));
             Parent root = loader.load();
-
-            EmergencyAlertController controller = loader.getController();
-            controller.loadActiveAlerts();
-
-            Stage stage = createStage("Emergency Alerts", root);
-            openWindows.put("emergencyAlerts", stage);
             
-            stage.setOnCloseRequest(e -> openWindows.remove("emergencyAlerts"));
-            stage.show();
+            AdminDoctorEmergencyController controller = loader.getController();
+            controller.setUserInfo(administrator.getId(), "ADMIN");
+            
+            Stage popupStage = new Stage();
+            popupStage.initModality(Modality.APPLICATION_MODAL);
+            popupStage.initStyle(StageStyle.DECORATED);
+            popupStage.setTitle("Emergency Alerts");
+            
+            // Set a reasonable size for the popup
+            Scene scene = new Scene(root, 800, 600);
+            popupStage.setScene(scene);
+            
+            // Center the popup on the screen
+            popupStage.centerOnScreen();
+            
+            popupStage.show();
         } catch (IOException e) {
-            showError("Error", "Could not load emergency alerts: " + e.getMessage());
+            showError("Emergency Alerts Error", "Error loading emergency alerts: " + e.getMessage());
         }
     }
 

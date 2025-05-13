@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.rpms.controller.AdminDoctorEmergencyController"
+      spacing="15"
+      prefWidth="800"
+      prefHeight="600"
+      alignment="TOP_CENTER"
+      style="-fx-background-color: #ffffff; -fx-padding: 20;">
+
+    <!-- Header -->
+    <HBox alignment="CENTER"
+          style="-fx-background-color: #2c3e50; -fx-padding: 15; -fx-background-radius: 8;">
+        <Label text="Emergency Alerts Management"
+               style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: white;"/>
+    </HBox>
+
+    <!-- Table View -->
+    <TableView fx:id="emergencyTable" VBox.vgrow="ALWAYS"
+               style="-fx-background-radius: 6; -fx-border-color: #ccc;">
+        <columns>
+            <TableColumn fx:id="dateColumn" text="Date &amp; Time" prefWidth="160"/>
+            <TableColumn fx:id="patientColumn" text="Patient" prefWidth="160"/>
+            <TableColumn fx:id="messageColumn" text="Message" prefWidth="250"/>
+            <TableColumn fx:id="statusColumn" text="Status" prefWidth="100"/>
+            <TableColumn fx:id="severityColumn" text="Alert Type"/>  <!-- Shows the type field -->
+        </columns>
+        <placeholder>
+            <Label text="No emergency alerts available"
+                   style="-fx-font-style: italic; -fx-text-fill: gray;"/>
+        </placeholder>
+    </TableView>
+
+    <!-- Buttons -->
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="Contact Patient"
+                onAction="#handleContactPatient"
+                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 5;"/>
+        <Button text="Mark as Resolved"
+                onAction="#handleResolveAlert"
+                style="-fx-background-color: #2ecc71; -fx-text-fill: white; -fx-padding: 10 20; -fx-background-radius: 5;"/>
+    </HBox>
+
+    <!-- Status Message -->
+    <Label fx:id="statusLabel"
+           wrapText="true"
+           alignment="CENTER"
+           style="-fx-font-size: 14px; -fx-text-fill: #555;"/>
+</VBox>

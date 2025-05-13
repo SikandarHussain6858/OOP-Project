@@ -24,12 +24,6 @@ public class LoginController {
     @FXML private Label errorLabel;
 
     @FXML
-    private void initialize() {
-        roleComboBox.getItems().addAll("Admin", "Doctor", "Patient");
-        errorLabel.setVisible(false);
-    }
-
-    @FXML
     private void handleLogin() {
         String username = usernameField.getText().trim();
         String password = passwordField.getText().trim();

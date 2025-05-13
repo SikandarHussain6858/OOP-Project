@@ -119,7 +119,7 @@ public class BookAppointmentController {
             }
 
             // Insert the appointment
-            String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, notes, status) VALUES (?, ?, ?, ?, 'SCHEDULED')";
+            String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, notes, status) VALUES (?, ?, ?, ?, 'PENDING')";
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setString(1, patientId);
                 stmt.setString(2, doctorId);
