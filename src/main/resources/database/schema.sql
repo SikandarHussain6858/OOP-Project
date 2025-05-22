@@ -67,7 +67,6 @@ CREATE TABLE IF NOT EXISTS emergency_alerts (
     resolved_at TIMESTAMP NULL,
     FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
 -- Create document management table
 CREATE TABLE patient_documents (
     document_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -93,31 +92,27 @@ CREATE TABLE consultation_requests (
     FOREIGN KEY (doctor_id) REFERENCES users(user_id)
 );
 
--- Create patient vitals table
 CREATE TABLE IF NOT EXISTS patient_vitals (
     vital_id INT PRIMARY KEY AUTO_INCREMENT,
-    patient_id VARCHAR(50) NOT NULL,
-    heart_rate DOUBLE NOT NULL,
-    oxygen_saturation DOUBLE NOT NULL,
-    bp_systolic DOUBLE NOT NULL,
-    bp_diastolic DOUBLE NOT NULL,
-    temperature DOUBLE NOT NULL,
+    patient_id INT,
+    bp_systolic DOUBLE,
+    bp_diastolic DOUBLE,
+    heart_rate DOUBLE,
+    temperature DOUBLE,
+    oxygen_saturation DOUBLE,
+    glucose DOUBLE,
     recorded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(user_id)
 );
-
--- Create patient alerts table
 CREATE TABLE IF NOT EXISTS patient_alerts (
     alert_id INT PRIMARY KEY AUTO_INCREMENT,
-    patient_id VARCHAR(50),
+    patient_id INT,
     alert_message TEXT,
     status VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES users(user_id)
 );
-
--- Create feedbacks table
-CREATE TABLE IF NOT EXISTS feedbacks (
+cREATE TABLE IF NOT EXISTS feedbacks (
     feedback_id INT PRIMARY KEY AUTO_INCREMENT,
     patient_id INT,
     doctor_id INT,
@@ -126,19 +121,39 @@ CREATE TABLE IF NOT EXISTS feedbacks (
     FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
--- Create reports table
-CREATE TABLE IF NOT EXISTS reports (
-    report_id INT PRIMARY KEY AUTO_INCREMENT,
-    patient_id INT,
-    date DATE,
-    report_type VARCHAR(100),
-    description TEXT,
+CREATE TABLE IF NOT EXISTS prescriptions (
+    prescription_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    diagnosis TEXT NOT NULL,
+    medications TEXT NOT NULL,
+    instructions TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE
+    FOREIGN KEY (patient_id) REFERENCES users(user_id),
+    FOREIGN KEY (doctor_id) REFERENCES users(user_id)
 );
-
--- Create patient-doctor relationship table
+CREATE TABLE IF NOT EXISTS video_consultations (
+    consultation_id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    doctor_id INT NOT NULL,
+    consultation_date DATE NOT NULL,
+    consultation_time TIME NOT NULL,
+    duration VARCHAR(20) NOT NULL, -- e.g. "30 minutes", "1 hour"
+    notes TEXT,
+    meet_link TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    status ENUM('SCHEDULED', 'COMPLETED', 'CANCELLED') DEFAULT 'SCHEDULED',
+    FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    message TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS patient_doctor (
     patient_id INT NOT NULL,
     doctor_id INT NOT NULL,
@@ -147,23 +162,27 @@ CREATE TABLE IF NOT EXISTS patient_doctor (
     FOREIGN KEY (patient_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
--- Create notifications table
-CREATE TABLE IF NOT EXISTS notifications (
-    notification_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    message TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
+CREATE TABLE emergency_alerts (
+    id varchar(50) PRIMARY KEY,
+    patient_id INT,
+    message TEXT,
+    status VARCHAR(20),
+    severity VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    resolved_by INT,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id),
+    FOREIGN KEY (resolved_by) REFERENCES users(user_id)
 );
+use rpms;
 
--- Create notifications table
-CREATE TABLE IF NOT EXISTS notifications (
-    notification_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT NOT NULL,
-    message TEXT NOT NULL,
-    is_read BOOLEAN DEFAULT FALSE,
+CREATE TABLE emergency_alerts (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT,
+    type VARCHAR(50),
+    message TEXT,
+    status VARCHAR(20),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+    resolved_by INT,
+    FOREIGN KEY (patient_id) REFERENCES users(user_id),
+    FOREIGN KEY (resolved_by) REFERENCES users(user_id)
 );
